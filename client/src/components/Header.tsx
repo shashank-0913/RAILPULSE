@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Bell, Clock, ShieldCheck, Play, RefreshCw, Radio, LogOut, Sun, Moon } from 'lucide-react';
+import { Activity, Bell, Clock, ShieldCheck, Play, RefreshCw, Radio, LogOut, Sun, Moon, Menu } from 'lucide-react';
 import { VerifiedUser, SystemAlert } from '../types';
 import { api } from '../services/api';
 
@@ -14,6 +14,7 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onSwitchRole?: () => void;
+  onToggleMobileNav?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,7 +25,8 @@ export const Header: React.FC<HeaderProps> = ({
   activeAlertCount,
   theme,
   onToggleTheme,
-  onSwitchRole
+  onSwitchRole,
+  onToggleMobileNav
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [utcTime, setUtcTime] = useState<string>('');
@@ -79,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header style={{
+    <header className="control-header-responsive" style={{
       background: 'var(--header-bg)',
       borderBottom: '1px solid var(--border-subtle)',
       padding: '0.75rem 1.5rem',
@@ -92,7 +94,18 @@ export const Header: React.FC<HeaderProps> = ({
       boxShadow: 'var(--card-shadow)'
     }}>
       {/* Brand & Platform Identity */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Mobile Nav Toggle Button */}
+        {onToggleMobileNav && (
+          <button
+            onClick={onToggleMobileNav}
+            className="mobile-nav-toggle-btn"
+            title="Open Control Navigation Menu"
+          >
+            <Menu size={20} />
+          </button>
+        )}
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{
             width: '36px',
@@ -102,27 +115,28 @@ export const Header: React.FC<HeaderProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)'
+            boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
+            flexShrink: 0
           }}>
             <Radio size={20} color="#ffffff" className="animate-pulse" />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
               <span className="font-heading" style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                 RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
               </span>
               <span className="badge-status badge-ai-intel" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>
-                AI INTELLIGENCE v2.5
+                AI v2.5
               </span>
             </div>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.02em' }}>
+            <p className="header-hide-on-tablet" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.02em' }}>
               Dynamic Train ETA & Delay Intelligence Platform | SIH26028
             </p>
           </div>
         </div>
 
         {/* Data Quality Pill */}
-        <div style={{
+        <div className="header-hide-on-tablet" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
@@ -142,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Center Live Mode / Demo Mode Switcher, Clock & Quick Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
         {/* Live Mode vs Demo Mode Switch */}
         <div style={{
           display: 'flex',

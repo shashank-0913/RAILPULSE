@@ -319,7 +319,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
       flexDirection: 'column'
     }}>
       {/* 1. TOP PASSENGER HEADER & USER PROFILE */}
-      <header style={{
+      <header className="passenger-header-responsive" style={{
         background: 'var(--bg-surface)',
         borderBottom: '1px solid var(--border-subtle)',
         padding: '0.85rem 1.5rem',
@@ -342,12 +342,13 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)'
+              boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
+              flexShrink: 0
             }}>
               <Radio size={20} color="#ffffff" className="animate-pulse" />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                 <span className="font-heading" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                   RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
                 </span>
@@ -362,98 +363,99 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
           </div>
         </div>
 
-        {/* Center: Live Status & Refresh */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <span style={{
-            fontSize: '0.7rem',
-            fontWeight: 800,
-            padding: '0.2rem 0.6rem',
-            borderRadius: '9999px',
-            background: dataSource === 'RAILRADAR' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-            color: dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b',
-            border: `1px solid ${dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b'}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem'
-          }}>
-            <span className="radar-live-dot" style={{ background: dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b' }}></span>
-            {dataSource === 'RAILRADAR' ? 'LIVE — RailRadar Connected' : 'DEMO — Simulated Railway Data'}
-          </span>
-
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono' }}>
-            Updated {lastUpdatedSec}s ago
-          </span>
-
-          <button
-            onClick={() => loadTrainJourney(selectedTrainId)}
-            className="btn-icon"
-            title="Refresh Live Telemetry"
-            style={{ width: '28px', height: '28px' }}
-          >
-            <RefreshCw size={13} className={loading ? 'spin' : ''} />
-          </button>
-        </div>
-
-        {/* Right: User Profile, Theme & Controller Switch */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          {/* Passenger Profile Pill */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: '20px',
-            padding: '0.25rem 0.75rem',
-            fontSize: '0.75rem'
-          }}>
-            <UserCheck size={14} color="var(--color-green)" />
-            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-              {user?.fullName || 'Passenger User'}
+        {/* Center & Right Controls on Responsive Grid */}
+        <div className="passenger-header-row2" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Live Status & Refresh */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              padding: '0.2rem 0.6rem',
+              borderRadius: '9999px',
+              background: dataSource === 'RAILRADAR' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+              color: dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b',
+              border: `1px solid ${dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b'}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem'
+            }}>
+              <span className="radar-live-dot" style={{ background: dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b' }}></span>
+              {dataSource === 'RAILRADAR' ? 'LIVE — RailRadar' : 'DEMO — Simulated'}
             </span>
+
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono' }}>
+              {lastUpdatedSec}s ago
+            </span>
+
+            <button
+              onClick={() => loadTrainJourney(selectedTrainId)}
+              className="btn-icon"
+              title="Refresh Live Telemetry"
+              style={{ width: '28px', height: '28px' }}
+            >
+              <RefreshCw size={13} className={loading ? 'spin' : ''} />
+            </button>
           </div>
 
-          <button
-            onClick={onToggleTheme}
-            className="btn-theme-toggle"
-            style={{ fontSize: '0.725rem', padding: '0.35rem 0.65rem' }}
-          >
-            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-          </button>
-
-          {/* Official Controller Portal Trigger */}
-          <button
-            onClick={onOpenControllerGate || onSwitchRole}
-            style={{
+          {/* Right: User Profile, Theme & Controller Switch */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.4)',
-              borderRadius: '8px',
-              padding: '0.35rem 0.75rem',
-              fontSize: '0.725rem',
-              color: '#f59e0b',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
-            title="Access Official Railway Controller Dashboard"
-          >
-            <ShieldAlert size={14} />
-            <span>Controller Room</span>
-          </button>
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '20px',
+              padding: '0.25rem 0.65rem',
+              fontSize: '0.725rem'
+            }}>
+              <UserCheck size={14} color="var(--color-green)" />
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                {user?.fullName?.split(' ')[0] || 'Passenger'}
+              </span>
+            </div>
 
-          {onLogout && (
             <button
-              onClick={onLogout}
-              className="btn-icon"
-              title="Log out"
-              style={{ width: '32px', height: '32px', color: 'var(--text-muted)' }}
+              onClick={onToggleTheme}
+              className="btn-theme-toggle"
+              style={{ fontSize: '0.725rem', padding: '0.35rem 0.65rem' }}
             >
-              <LogOut size={15} />
+              {theme === 'dark' ? '☀️' : '🌙'}
             </button>
-          )}
+
+            {/* Official Controller Portal Trigger */}
+            <button
+              onClick={onOpenControllerGate || onSwitchRole}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
+                borderRadius: '8px',
+                padding: '0.35rem 0.65rem',
+                fontSize: '0.725rem',
+                color: '#f59e0b',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+              title="Access Official Railway Controller Dashboard"
+            >
+              <ShieldAlert size={14} />
+              <span>Controller Room</span>
+            </button>
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="btn-icon"
+                title="Log out"
+                style={{ width: '30px', height: '30px', color: 'var(--text-muted)' }}
+              >
+                <LogOut size={14} />
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -550,7 +552,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
         {/* TOP SEARCH & FILTER BAR ACROSS ENTIRE INDIAN RAILWAYS DATASET */}
         <div className="card" style={{ padding: '1rem 1.25rem' }}>
-          <div style={{ display: 'flex', gap: '0.75rem', position: 'relative', marginBottom: '0.65rem' }}>
+          <div className="search-action-row" style={{ display: 'flex', gap: '0.75rem', position: 'relative', marginBottom: '0.65rem' }}>
             <div className="search-input-container" style={{ position: 'relative', flex: 1 }}>
               <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
               <input
@@ -699,7 +701,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
         {/* 4. BOARDING & DESTINATION PROGRESS BAR COMPONENT */}
         <div className="card" style={{ border: '1px solid rgba(16, 185, 129, 0.3)', padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Navigation size={18} color="var(--color-green)" />
               <h2 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -707,7 +709,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               </h2>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.75rem', flexWrap: 'wrap' }}>
               {passengerDistanceToBoardingKm !== null && (
                 <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
                   You &rarr; Boarding: {passengerDistanceToBoardingKm} km
@@ -722,7 +724,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
           </div>
 
           {/* Boarding and Destination Station Selectors */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div className="station-selector-grid" style={{ marginBottom: '1.25rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                 Your Boarding Station
@@ -786,7 +788,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
           {/* Visual Journey Multi-segment Progress Bar */}
           <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.35rem' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.675rem' }}>BOARDING:</span>{' '}
                 <strong style={{ color: 'var(--color-cyan)' }}>{boardingStation}</strong>
@@ -815,7 +817,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               }} />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem', flexWrap: 'wrap', gap: '0.35rem' }}>
               <span>Origin: {trainSource}</span>
               <span>Running Status: {isDelayed ? `Delayed by ${currentDelay}m` : 'Running On-Time'}</span>
               <span>Final: {trainDestination}</span>
@@ -828,7 +830,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
           
           {/* Left: Interactive Map */}
           <div className="card" style={{ padding: '1rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.35rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MapPin size={18} color="var(--color-green)" />
                 <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -866,7 +868,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                     </div>
                     <div className="skeleton-box" style={{ width: '90px', height: '28px' }}></div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem', marginBottom: '0.85rem' }}>
+                  <div className="telemetry-grid-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem', marginBottom: '0.85rem' }}>
                     <div className="skeleton-box" style={{ height: '54px' }}></div>
                     <div className="skeleton-box" style={{ height: '54px' }}></div>
                     <div className="skeleton-box" style={{ height: '54px' }}></div>
@@ -875,7 +877,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <div>
                       <span style={{ fontSize: '0.7rem', color: 'var(--color-cyan)', fontWeight: 800 }}>TRAIN #{trainNumber}</span>
                       <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -925,7 +927,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.35rem' }}>
                     <span>Route: {trainSource} &rarr; {trainDestination}</span>
                     <span>Current: <strong>{currentStation}</strong></span>
                   </div>
@@ -935,7 +937,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
             {/* REAL-TIME WEATHER MODULE WITH PROGRESSIVE SKELETON */}
             <div className="card" style={{ padding: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.35rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CloudSun size={18} color="var(--color-cyan)" />
                   <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -948,12 +950,12 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               </div>
 
               {weatherLoading && !trainWeather ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="weather-grid-responsive">
                   <div className="skeleton-box" style={{ height: '110px' }}></div>
                   <div className="skeleton-box" style={{ height: '110px' }}></div>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="weather-grid-responsive">
                   {/* Train Weather */}
                   <div style={{ background: 'var(--bg-elevated)', borderRadius: '8px', padding: '0.75rem' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-cyan)', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
@@ -1024,8 +1026,6 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
         {/* 6. SUB-TABS WITH FAST SMOOTH 180ms TRANSITIONS */}
         <div className="subtab-buttons-container" style={{
-          display: 'flex',
-          gap: '0.5rem',
           borderBottom: '1px solid var(--border-subtle)',
           paddingBottom: '0.5rem'
         }}>
@@ -1048,7 +1048,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 color: activeSubTab === tab.id ? 'var(--color-green)' : 'var(--text-secondary)',
                 fontWeight: activeSubTab === tab.id ? 700 : 500,
                 fontSize: '0.8rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
             >
               {tab.label}
@@ -1070,8 +1071,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 <div className="skeleton-box" style={{ height: '32px', width: '100%' }}></div>
               </div>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="table-railpulse" style={{ fontSize: '0.8rem' }}>
+              <div className="table-responsive-wrapper">
+                <table className="telemetry-table" style={{ fontSize: '0.8rem', minWidth: '600px' }}>
                   <thead>
                     <tr>
                       <th>STATION</th>
@@ -1128,7 +1129,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               Translates complex gradient-boosted decision tree features into plain-English root causes for passengers.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div className="shap-cards-grid">
               <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b' }}>FREIGHT CROSSING PREEMPTION</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
@@ -1157,7 +1158,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
             <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.85rem' }}>
               MULTI-HORIZON DELAY PROJECTIONS
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', textAlign: 'center' }}>
+            <div className="forecast-horizons-grid" style={{ textAlign: 'center' }}>
               <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>+30 MIN HORIZON</div>
                 <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f59e0b', margin: '0.25rem 0' }}>+18 min</div>

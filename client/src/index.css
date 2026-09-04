@@ -626,28 +626,196 @@ button:active, .clickable-pill:active {
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-/* Responsive Mobile Layout Adjustments */
-@media (max-width: 900px) {
+/* Responsive Mobile & Multi-Device Layout System */
+.station-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.weather-grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.shap-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.forecast-horizons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+.subtab-buttons-container {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+/* Mobile Sidebar Drawer */
+.mobile-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+  animation: fadeSlideIn 0.2s ease forwards;
+}
+
+.mobile-sidebar-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 290px;
+  max-width: 85vw;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-subtle);
+  z-index: 999;
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: drawerSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobile-nav-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mobile-nav-toggle-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--color-cyan);
+}
+
+/* Multi-device Breakpoints */
+@media (max-width: 1024px) {
+  .page-wrapper {
+    padding: 1.25rem 1rem;
+  }
+  .shap-cards-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .forecast-horizons-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .mobile-nav-toggle-btn {
+    display: flex !important;
+  }
+  .desktop-sidebar-fixed {
+    display: none !important;
+  }
   .dashboard-grid-main {
     grid-template-columns: 1fr !important;
+  }
+  .header-hide-on-tablet {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 1rem 0.75rem;
+  }
+  .station-selector-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .weather-grid-responsive {
+    grid-template-columns: 1fr !important;
+  }
+  .shap-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .forecast-horizons-grid {
+    grid-template-columns: 1fr 1fr !important;
   }
   .telemetry-grid-3col {
     grid-template-columns: 1fr 1fr 1fr !important;
   }
-}
-
-@media (max-width: 640px) {
-  .telemetry-grid-3col {
-    grid-template-columns: 1fr !important;
+  .auth-top-nav-responsive {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
   }
-  .dashboard-header-responsive {
+  .auth-footer-responsive {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 0.5rem !important;
   }
-  .subtab-buttons-container {
-    overflow-x: auto !important;
-    white-space: nowrap !important;
+  .passenger-header-responsive {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+  .passenger-header-row2 {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+  .control-header-responsive {
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+    padding: 0.6rem 1rem !important;
   }
 }
+
+@media (max-width: 520px) {
+  .forecast-horizons-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .telemetry-grid-3col {
+    grid-template-columns: 1fr !important;
+  }
+  .auth-card-responsive {
+    padding: 1.25rem !important;
+  }
+  .search-action-row {
+    flex-direction: column !important;
+  }
+  .search-action-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
 

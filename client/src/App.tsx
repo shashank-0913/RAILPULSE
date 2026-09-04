@@ -45,6 +45,7 @@ export const App: React.FC = () => {
   const [selectedTrainId, setSelectedTrainId] = useState<string>('12864');
   const [isDemoActive, setIsDemoActive] = useState<boolean>(false);
   const [unacknowledgedAlerts, setUnacknowledgedAlerts] = useState<number>(3);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('railpulse_theme') as 'dark' | 'light') || 'dark';
   });
@@ -96,6 +97,7 @@ export const App: React.FC = () => {
 
   const handleNavigateTab = (tab: string, trainId?: string) => {
     setActiveTab(tab);
+    setIsMobileNavOpen(false);
     if (trainId) {
       setSelectedTrainId(trainId);
     }
@@ -165,6 +167,7 @@ export const App: React.FC = () => {
             theme={theme}
             onToggleTheme={toggleTheme}
             onSwitchRole={handleSwitchRole}
+            onToggleMobileNav={() => setIsMobileNavOpen(prev => !prev)}
           />
 
           {/* Interactive SIH Demo Walkthrough Banner */}
@@ -176,11 +179,13 @@ export const App: React.FC = () => {
           )}
 
           {/* Body with Controller Operations Sidebar & Main Views */}
-          <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+          <div style={{ display: 'flex', flex: 1, minHeight: 0, position: 'relative' }}>
             <Sidebar
               activeTab={activeTab}
               onSelectTab={handleNavigateTab}
               unacknowledgedAlerts={unacknowledgedAlerts}
+              isMobileOpen={isMobileNavOpen}
+              onCloseMobile={() => setIsMobileNavOpen(false)}
             />
 
             <main className="main-content">

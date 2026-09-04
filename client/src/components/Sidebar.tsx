@@ -13,19 +13,25 @@ import {
   FileCode2,
   Sparkles,
   Award,
-  GitMerge
+  GitMerge,
+  X,
+  Radio
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   unacknowledgedAlerts: number;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onSelectTab,
-  unacknowledgedAlerts
+  unacknowledgedAlerts,
+  isMobileOpen = false,
+  onCloseMobile
 }) => {
   const navItems = [
     { id: 'overview', label: 'Overview HUD', icon: LayoutDashboard, badge: null },
@@ -47,21 +53,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'model_docs', label: 'Architecture & CRIS Docs', icon: FileCode2, badge: 'Spec' }
   ];
 
-  return (
-    <aside style={{
-      width: '260px',
-      background: 'var(--sidebar-bg)',
-      borderRight: '1px solid var(--border-subtle)',
-      display: 'flex',
-      flexDirection: 'column',
-      flexShrink: 0,
-      padding: '1.25rem 0.75rem',
-      transition: 'background-color 0.25s ease, border-color 0.25s ease'
-    }}>
-      <div style={{ padding: '0 0.75rem 0.85rem 0.75rem', borderBottom: '1px solid var(--border-subtle)', marginBottom: '0.65rem' }}>
-        <div style={{ fontSize: '0.675rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
-          CONTROL OPERATIONS
+  const handleTabClick = (tabId: string) => {
+    onSelectTab(tabId);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
+  const renderContent = (isDrawer = false) => (
+    <>
+      <div style={{
+        padding: '0.25rem 0.75rem 0.85rem 0.75rem',
+        borderBottom: '1px solid var(--border-subtle)',
+        marginBottom: '0.65rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Radio size={16} color="var(--color-green)" className="animate-pulse" />
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
+            CONTROL OPERATIONS
+          </div>
         </div>
+
+        {isDrawer && onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', flex: 1, overflowY: 'auto' }}>
@@ -72,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <button
               key={item.id}
-              onClick={() => onSelectTab(item.id)}
+              onClick={() => handleTabClick(item.id)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -123,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <button
               key={item.id}
-              onClick={() => onSelectTab(item.id)}
+              onClick={() => handleTabClick(item.id)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -179,6 +210,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span style={{ color: 'var(--color-cyan)', fontFamily: 'JetBrains Mono', fontWeight: 700 }}>88.6%</span>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* 1. Desktop Fixed Sidebar */}
+      <aside className="desktop-sidebar-fixed" style={{
+        width: '260px',
+        background: 'var(--sidebar-bg)',
+        borderRight: '1px solid var(--border-subtle)',
+        display: 'flex',
+        flexDirection: 'column',
+        flexShrink: 0,
+        padding: '1.25rem 0.75rem',
+        transition: 'background-color 0.25s ease, border-color 0.25s ease'
+      }}>
+        {renderContent(false)}
+      </aside>
+
+      {/* 2. Mobile Slide-Out Drawer Navigation */}
+      {isMobileOpen && (
+        <>
+          <div className="mobile-sidebar-backdrop" onClick={onCloseMobile} />
+          <aside className="mobile-sidebar-drawer" style={{ padding: '1.25rem 0.75rem' }}>
+            {renderContent(true)}
+          </aside>
+        </>
+      )}
+    </>
   );
 };

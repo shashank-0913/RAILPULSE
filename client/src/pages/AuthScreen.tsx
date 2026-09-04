@@ -88,7 +88,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      padding: '2rem 1.5rem',
+      padding: '1.25rem 1rem',
       position: 'relative',
       overflowX: 'hidden'
     }}>
@@ -103,7 +103,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       }} />
 
       {/* Top Navbar */}
-      <div style={{
+      <div className="auth-top-nav-responsive" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -122,17 +122,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)'
+            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)',
+            flexShrink: 0
           }}>
             <Radio size={22} color="#ffffff" className="animate-pulse" />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="font-heading" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span className="font-heading" style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                 RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
               </span>
               <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
-                SIH 2026 • SIH26028
+                SIH26028
               </span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
@@ -141,8 +142,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="header-hide-on-tablet" style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
@@ -168,7 +169,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       </div>
 
       {/* Main Authentication Card */}
-      <div style={{
+      <div className="auth-card-responsive" style={{
         maxWidth: '480px',
         width: '100%',
         margin: '0 auto',
@@ -497,7 +498,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       </div>
 
       {/* Footer */}
-      <div style={{
+      <div className="auth-footer-responsive" style={{
         maxWidth: '1200px',
         width: '100%',
         margin: '1.5rem auto 0 auto',
@@ -512,7 +513,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         zIndex: 10
       }}>
         <div>Smart India Hackathon 2026 • Ministry of Railways Problem Statement SIH26028</div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <span>Indian Railways Coaching Operations</span>
           <span>•</span>
           <span>CRIS Interoperable Protocol</span>

@@ -153,6 +153,8 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
         position: 'relative',
         overflow: 'hidden'
@@ -160,7 +162,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #10b981, #38bdf8, #f59e0b)' }} />
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
             <span style={{
               fontSize: '0.725rem',
               fontWeight: 800,
@@ -180,7 +182,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
             </span>
           </div>
 
-          <h1 className="font-heading" style={{ fontSize: '1.45rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 className="font-heading" style={{ fontSize: '1.45rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span>🚦 PLATFORM & TRAFFIC AUTOMATION</span>
           </h1>
           <p style={{ fontSize: '0.825rem', color: '#94a3b8', marginTop: '0.25rem', maxWidth: '820px' }}>
@@ -188,7 +190,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
           <button
             onClick={handleRunSimulation}
             disabled={isSimulating}
@@ -246,7 +248,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
           <div style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-cyan)', marginBottom: '0.75rem' }}>
             ⚡ EXECUTING MULTI-STAGE TRAFFIC CONFLICT SIMULATION
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.5rem' }}>
             {d.simulationPipeline.map((step) => {
               const isPassed = simActiveStep > step.step;
               const isCurrent = simActiveStep === step.step;
@@ -278,8 +280,8 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
         </div>
       )}
 
-      {/* 2-COLUMN OPERATIONAL LAYOUT */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
+      {/* 2-COLUMN OPERATIONAL LAYOUT (RESPONSIVE) */}
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
         
         {/* LEFT COLUMN: UPCOMING CONFLICTS & PLATFORM OCCUPANCY */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
