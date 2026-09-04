@@ -13,6 +13,14 @@ import {
   PlatformTrafficState
 } from '../types';
 
+import {
+  ALL_INDIAN_RAILWAYS_TRAINS,
+  IR_STATION_DATABASE,
+  searchAllIndianRailwaysTrains,
+  getUniversalJourneyPayload,
+  generateUniversalIRTrain
+} from './indianRailwaysData';
+
 const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
 export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 export const V1_BASE = BACKEND_URL ? `${BACKEND_URL}/v1` : '/v1';
@@ -28,253 +36,6 @@ async function safeFetchJson<T>(url: string, options?: RequestInit): Promise<T> 
     throw new Error(`Expected JSON from ${url}, received ${contentType}`);
   }
   return await res.json();
-}
-
-// Built-in Indian Railways Route & Train Database for Offline / Static Fallback
-const FALLBACK_TRAINS: Record<string, any> = {
-  '12864': {
-    number: '12864',
-    name: 'Howrah SF Express',
-    source: 'SMVT Bengaluru',
-    sourceCode: 'SMVB',
-    dest: 'Howrah Junction',
-    destCode: 'HWH',
-    type: 'SUPERFAST',
-    runningDays: 'Daily',
-    totalDistanceKm: 1944,
-    currentStation: 'Vizianagaram Jn',
-    currentStationCode: 'VZM',
-    previousStation: 'Visakhapatnam Jn',
-    previousStationCode: 'VSKP',
-    nextStation: 'Srikakulam Road',
-    nextStationCode: 'CHE',
-    currentLocationName: 'Near Chipurupalle (Between VSKP & CHE)',
-    latitude: 18.2984,
-    longitude: 83.5672,
-    speed: 84,
-    bearing: 52,
-    delayMinutes: 14,
-    runningStatus: 'Running Delayed (+14m)',
-    stations: [
-      { code: 'SMVB', name: 'SMVT Bengaluru', scheduledArrival: '06:50', scheduledDeparture: '07:00', platform: '1', distanceKm: 0, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'KPD', name: 'Katpadi Junction', scheduledArrival: '10:20', scheduledDeparture: '10:25', platform: '2', distanceKm: 220, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'RU', name: 'Renigunta Junction', scheduledArrival: '12:15', scheduledDeparture: '12:20', platform: '1', distanceKm: 345, status: 'DEPARTED', delayMinutes: 2 },
-      { code: 'BZA', name: 'Vijayawada Junction', scheduledArrival: '17:40', scheduledDeparture: '17:50', platform: '4', distanceKm: 730, status: 'DEPARTED', delayMinutes: 5 },
-      { code: 'RJY', name: 'Rajahmundry', scheduledArrival: '20:03', scheduledDeparture: '20:05', platform: '3', distanceKm: 879, status: 'DEPARTED', delayMinutes: 8 },
-      { code: 'VSKP', name: 'Visakhapatnam Junction', scheduledArrival: '23:05', scheduledDeparture: '23:25', platform: '1', distanceKm: 1080, status: 'DEPARTED', delayMinutes: 12 },
-      { code: 'VZM', name: 'Vizianagaram Junction', scheduledArrival: '00:20', scheduledDeparture: '00:25', platform: '3', distanceKm: 1141, status: 'PASSED', delayMinutes: 14 },
-      { code: 'CHE', name: 'Srikakulam Road', scheduledArrival: '01:18', scheduledDeparture: '01:20', platform: '2', distanceKm: 1211, status: 'UPCOMING', delayMinutes: 14, predictedArrival: '01:32' },
-      { code: 'PSA', name: 'Palasa', scheduledArrival: '02:28', scheduledDeparture: '02:30', platform: '1', distanceKm: 1284, status: 'UPCOMING', delayMinutes: 12, predictedArrival: '02:40' },
-      { code: 'BAM', name: 'Brahmapur', scheduledArrival: '03:30', scheduledDeparture: '03:35', platform: '2', distanceKm: 1358, status: 'UPCOMING', delayMinutes: 10, predictedArrival: '03:40' },
-      { code: 'KUR', name: 'Khurda Road Junction', scheduledArrival: '05:25', scheduledDeparture: '05:45', platform: '3', distanceKm: 1505, status: 'UPCOMING', delayMinutes: 8, predictedArrival: '05:33' },
-      { code: 'BBS', name: 'Bhubaneswar', scheduledArrival: '06:10', scheduledDeparture: '06:15', platform: '1', distanceKm: 1524, status: 'UPCOMING', delayMinutes: 6, predictedArrival: '06:16' },
-      { code: 'CTC', name: 'Cuttack Junction', scheduledArrival: '06:50', scheduledDeparture: '06:55', platform: '2', distanceKm: 1552, status: 'UPCOMING', delayMinutes: 5, predictedArrival: '06:55' },
-      { code: 'BHC', name: 'Bhadrak', scheduledArrival: '08:45', scheduledDeparture: '08:47', platform: '1', distanceKm: 1667, status: 'UPCOMING', delayMinutes: 4, predictedArrival: '08:49' },
-      { code: 'BLS', name: 'Baleshwar', scheduledArrival: '09:30', scheduledDeparture: '09:32', platform: '3', distanceKm: 1730, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '09:32' },
-      { code: 'KGP', name: 'Kharagpur Junction', scheduledArrival: '11:15', scheduledDeparture: '11:20', platform: '6', distanceKm: 1846, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '11:15' },
-      { code: 'HWH', name: 'Howrah Junction', scheduledArrival: '13:45', scheduledDeparture: '--:--', platform: '18', distanceKm: 1944, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '13:45' }
-    ],
-    coordinates: [
-      [77.651, 12.993], [79.132, 12.971], [79.486, 13.628], [80.648, 16.506],
-      [81.777, 17.000], [83.298, 17.721], [83.395, 18.106], [83.896, 18.298],
-      [84.417, 18.775], [84.794, 19.314], [85.626, 20.182], [85.824, 20.296],
-      [85.883, 20.462], [86.516, 21.057], [86.926, 21.493], [87.321, 22.339],
-      [88.342, 22.583]
-    ]
-  },
-  '20833': {
-    number: '20833',
-    name: 'Visakhapatnam - Secunderabad Vande Bharat Express',
-    source: 'Visakhapatnam Junction',
-    sourceCode: 'VSKP',
-    dest: 'Secunderabad Junction',
-    destCode: 'SC',
-    type: 'VANDE_BHARAT',
-    runningDays: 'Mon, Tue, Wed, Thu, Fri, Sun',
-    totalDistanceKm: 699,
-    currentStation: 'Rajahmundry',
-    currentStationCode: 'RJY',
-    previousStation: 'Samalkot Jn',
-    previousStationCode: 'SLO',
-    nextStation: 'Vijayawada Jn',
-    nextStationCode: 'BZA',
-    currentLocationName: 'Cruising near Godavari Arch Bridge (RJY)',
-    latitude: 17.0005,
-    longitude: 81.7774,
-    speed: 130,
-    bearing: 245,
-    delayMinutes: 0,
-    runningStatus: 'Running On-Time (130 km/h)',
-    stations: [
-      { code: 'VSKP', name: 'Visakhapatnam Junction', scheduledArrival: '05:45', scheduledDeparture: '05:45', platform: '1', distanceKm: 0, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'SLO', name: 'Samalkot Junction', scheduledArrival: '06:58', scheduledDeparture: '07:00', platform: '3', distanceKm: 151, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'RJY', name: 'Rajahmundry', scheduledArrival: '07:38', scheduledDeparture: '07:40', platform: '1', distanceKm: 201, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'BZA', name: 'Vijayawada Junction', scheduledArrival: '09:50', scheduledDeparture: '09:55', platform: '6', distanceKm: 350, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '09:50' },
-      { code: 'KMT', name: 'Khammam', scheduledArrival: '11:00', scheduledDeparture: '11:01', platform: '2', distanceKm: 449, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '11:00' },
-      { code: 'WL', name: 'Warangal', scheduledArrival: '12:05', scheduledDeparture: '12:06', platform: '2', distanceKm: 557, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '12:05' },
-      { code: 'SC', name: 'Secunderabad Junction', scheduledArrival: '14:15', scheduledDeparture: '--:--', platform: '10', distanceKm: 699, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '14:15' }
-    ],
-    coordinates: [
-      [83.298, 17.721], [82.171, 17.050], [81.777, 17.000], [80.648, 16.506],
-      [80.151, 17.247], [79.597, 17.968], [78.503, 17.433]
-    ]
-  },
-  '12301': {
-    number: '12301',
-    name: 'Howrah - New Delhi Rajdhani Express',
-    source: 'Howrah Junction',
-    sourceCode: 'HWH',
-    dest: 'New Delhi',
-    destCode: 'NDLS',
-    type: 'RAJDHANI',
-    runningDays: 'Mon, Tue, Wed, Thu, Fri, Sat',
-    totalDistanceKm: 1451,
-    currentStation: 'Pt. Deen Dayal Upadhyaya Jn',
-    currentStationCode: 'DDU',
-    previousStation: 'Gaya Jn',
-    previousStationCode: 'GAYA',
-    nextStation: 'Prayagraj Jn',
-    nextStationCode: 'PRYJ',
-    currentLocationName: 'Approaching Mirzapur Outer (DDU-PRYJ Trunk)',
-    latitude: 25.1337,
-    longitude: 82.5644,
-    speed: 128,
-    bearing: 295,
-    delayMinutes: 5,
-    runningStatus: 'Running On-Time (+5m)',
-    stations: [
-      { code: 'HWH', name: 'Howrah Junction', scheduledArrival: '16:50', scheduledDeparture: '16:50', platform: '9', distanceKm: 0, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'ASN', name: 'Asansol Junction', scheduledArrival: '18:57', scheduledDeparture: '19:00', platform: '4', distanceKm: 200, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'DHN', name: 'Dhanbad Junction', scheduledArrival: '19:55', scheduledDeparture: '20:00', platform: '3', distanceKm: 259, status: 'DEPARTED', delayMinutes: 2 },
-      { code: 'PNME', name: 'Parasnath', scheduledArrival: '20:34', scheduledDeparture: '20:36', platform: '3', distanceKm: 307, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'GAYA', name: 'Gaya Junction', scheduledArrival: '22:31', scheduledDeparture: '22:34', platform: '1', distanceKm: 458, status: 'DEPARTED', delayMinutes: 3 },
-      { code: 'DDU', name: 'Pt. DD Upadhyaya Junction', scheduledArrival: '00:45', scheduledDeparture: '00:55', platform: '4', distanceKm: 663, status: 'PASSED', delayMinutes: 5 },
-      { code: 'PRYJ', name: 'Prayagraj Junction', scheduledArrival: '02:33', scheduledDeparture: '02:35', platform: '1', distanceKm: 816, status: 'UPCOMING', delayMinutes: 4, predictedArrival: '02:39' },
-      { code: 'CNB', name: 'Kanpur Central', scheduledArrival: '04:40', scheduledDeparture: '04:45', platform: '1', distanceKm: 1010, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '04:47' },
-      { code: 'NDLS', name: 'New Delhi', scheduledArrival: '10:05', scheduledDeparture: '--:--', platform: '12', distanceKm: 1451, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '10:05' }
-    ],
-    coordinates: [
-      [88.342, 22.583], [86.984, 23.688], [86.430, 23.795], [86.136, 23.974],
-      [85.000, 24.795], [83.116, 25.281], [81.846, 25.435], [80.331, 26.449],
-      [77.216, 28.613]
-    ]
-  },
-  '12723': {
-    number: '12723',
-    name: 'Telangana Express',
-    source: 'Hyderabad Deccan',
-    sourceCode: 'HYB',
-    dest: 'New Delhi',
-    destCode: 'NDLS',
-    type: 'SUPERFAST',
-    runningDays: 'Daily',
-    totalDistanceKm: 1677,
-    currentStation: 'Nagpur Junction',
-    currentStationCode: 'NGP',
-    previousStation: 'Balharshah',
-    previousStationCode: 'BPQ',
-    nextStation: 'Bhopal Jn',
-    nextStationCode: 'BPL',
-    currentLocationName: 'Cruising near Betul Ghats (Central Trunk)',
-    latitude: 21.9022,
-    longitude: 77.9004,
-    speed: 92,
-    bearing: 340,
-    delayMinutes: 8,
-    runningStatus: 'Running On-Time (+8m)',
-    stations: [
-      { code: 'HYB', name: 'Hyderabad Deccan', scheduledArrival: '06:00', scheduledDeparture: '06:00', platform: '5', distanceKm: 0, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'SC', name: 'Secunderabad Junction', scheduledArrival: '06:20', scheduledDeparture: '06:25', platform: '1', distanceKm: 10, status: 'DEPARTED', delayMinutes: 0 },
-      { code: 'KZJ', name: 'Kazipet Junction', scheduledArrival: '08:03', scheduledDeparture: '08:05', platform: '1', distanceKm: 141, status: 'DEPARTED', delayMinutes: 2 },
-      { code: 'RDM', name: 'Ramagundam', scheduledArrival: '09:19', scheduledDeparture: '09:20', platform: '1', distanceKm: 234, status: 'DEPARTED', delayMinutes: 4 },
-      { code: 'BPQ', name: 'Balharshah', scheduledArrival: '11:55', scheduledDeparture: '12:00', platform: '4', distanceKm: 376, status: 'DEPARTED', delayMinutes: 6 },
-      { code: 'NGP', name: 'Nagpur Junction', scheduledArrival: '15:20', scheduledDeparture: '15:25', platform: '1', distanceKm: 584, status: 'PASSED', delayMinutes: 8 },
-      { code: 'BPL', name: 'Bhopal Junction', scheduledArrival: '21:45', scheduledDeparture: '21:55', platform: '2', distanceKm: 974, status: 'UPCOMING', delayMinutes: 5, predictedArrival: '21:50' },
-      { code: 'VGLJ', name: 'VGL Jhansi Junction', scheduledArrival: '01:15', scheduledDeparture: '01:23', platform: '4', distanceKm: 1266, status: 'UPCOMING', delayMinutes: 3, predictedArrival: '01:18' },
-      { code: 'GWL', name: 'Gwalior Junction', scheduledArrival: '02:40', scheduledDeparture: '02:42', platform: '2', distanceKm: 1363, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '02:42' },
-      { code: 'AGC', name: 'Agra Cantt', scheduledArrival: '04:25', scheduledDeparture: '04:27', platform: '2', distanceKm: 1481, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '04:25' },
-      { code: 'NDLS', name: 'New Delhi', scheduledArrival: '07:40', scheduledDeparture: '--:--', platform: '8', distanceKm: 1677, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '07:40' }
-    ],
-    coordinates: [
-      [78.474, 17.391], [78.503, 17.433], [79.524, 17.982], [79.489, 18.756],
-      [79.351, 19.851], [79.088, 21.145], [77.412, 23.259], [78.578, 25.448],
-      [78.182, 26.218], [78.008, 27.176], [77.216, 28.613]
-    ]
-  }
-};
-
-function generateProceduralTrain(trainId: string) {
-  const cleanId = trainId.replace(/\D/g, '') || '12864';
-  return {
-    number: cleanId,
-    name: `Special Express #${cleanId}`,
-    source: 'SMVT Bengaluru',
-    sourceCode: 'SMVB',
-    dest: 'Howrah Junction',
-    destCode: 'HWH',
-    type: 'SUPERFAST',
-    runningDays: 'Daily',
-    totalDistanceKm: 1944,
-    currentStation: 'Vizianagaram Jn',
-    currentStationCode: 'VZM',
-    previousStation: 'Visakhapatnam Jn',
-    previousStationCode: 'VSKP',
-    nextStation: 'Srikakulam Road',
-    nextStationCode: 'CHE',
-    currentLocationName: 'En Route Section VSKP-CHE',
-    latitude: 18.2984,
-    longitude: 83.5672,
-    speed: 78,
-    bearing: 52,
-    delayMinutes: 10,
-    runningStatus: 'Running On-Time (+10m)',
-    stations: FALLBACK_TRAINS['12864'].stations,
-    coordinates: FALLBACK_TRAINS['12864'].coordinates
-  };
-}
-
-function getFallbackTrainJourney(trainId: string) {
-  const t = FALLBACK_TRAINS[trainId] || generateProceduralTrain(trainId);
-  return {
-    success: true,
-    trainNumber: t.number,
-    trainName: t.name,
-    trainSource: t.source,
-    trainSourceCode: t.sourceCode,
-    trainDestination: t.dest,
-    trainDestinationCode: t.destCode,
-    trainType: t.type,
-    runningDays: t.runningDays,
-    totalDistanceKm: t.totalDistanceKm,
-    currentStation: t.currentStation,
-    currentStationCode: t.currentStationCode,
-    previousStation: t.previousStation,
-    previousStationCode: t.previousStationCode,
-    nextStation: t.nextStation,
-    nextStationCode: t.nextStationCode,
-    currentLocationName: t.currentLocationName,
-    latitude: t.latitude,
-    longitude: t.longitude,
-    speed: t.speed,
-    bearing: t.bearing,
-    headingDeg: t.bearing,
-    delayMinutes: t.delayMinutes,
-    runningStatus: t.runningStatus,
-    routeStations: t.stations,
-    routeGeometry: {
-      type: 'LineString',
-      coordinates: t.coordinates
-    },
-    explainability: {
-      summary: `Train ${t.number} is running with dynamic AI ETA tracking enabled. Current delay is ${t.delayMinutes} min with projected delay absorption over upcoming sections.`,
-      predictedEtaText: `Expected on schedule with ±3 min AI confidence window.`,
-      factors: [
-        { feature: 'Signal Headway Clearance', impactMinutes: -4, description: 'Green wave granted through mainline interlockings.' },
-        { feature: 'Weather & Track Visibility', impactMinutes: 0, description: 'Normal clear weather, optimal traction.' },
-        { feature: 'Terminal Platform Availability', impactMinutes: +2, description: 'Target platform scheduled to clear ahead of arrival.' }
-      ]
-    }
-  };
 }
 
 export const api = {
@@ -328,48 +89,59 @@ export const api = {
       const query = new URLSearchParams(params as any).toString();
       return await safeFetchJson(`${API_BASE}/trains?${query}`);
     } catch (err) {
-      const fallbackList: Train[] = Object.values(FALLBACK_TRAINS).map(t => ({
-        id: t.number,
-        name: t.name,
-        type: t.type,
-        origin: t.sourceCode,
-        originName: t.source,
-        destination: t.destCode,
-        destinationName: t.dest,
-        currentSection: 'SEC_VSKP_VZM',
-        currentLocationName: t.currentLocationName,
-        lat: t.latitude,
-        lng: t.longitude,
-        speedKmH: t.speed,
-        scheduledSpeedKmH: 110,
-        expectedSpeedKmH: 105,
-        headingDeg: t.bearing,
-        currentDelayMin: t.delayMinutes,
-        prevStationDelayMin: Math.max(0, t.delayMinutes - 2),
-        status: (t.delayMinutes > 15 ? 'CRITICAL_DELAY' : t.delayMinutes > 5 ? 'MINOR_DELAY' : 'ON_TIME') as any,
-        statusText: t.runningStatus,
-        statusColor: t.delayMinutes > 5 ? '#f59e0b' : '#10b981',
-        nextStation: t.nextStationCode,
-        nextStationName: t.nextStation,
-        distanceToNextStationKm: 42,
-        distanceToDestinationKm: 480,
-        scheduledNextArrival: '01:20',
-        predictedNextArrival: '01:34',
-        scheduledDestArrival: '13:45',
-        predictedDestArrival: '13:45',
-        predictedDestDelayMin: Math.max(0, t.delayMinutes - 4),
-        confidencePercent: 94.2,
-        dwellOverrunMin: 0,
-        weatherSeverity: 'CLEAR',
-        passengersOnboard: 1240,
-        rakeType: 'LHB',
-        locoType: 'WAP-7',
-        lastUpdated: new Date().toISOString()
-      }));
+      const allTrains = ALL_INDIAN_RAILWAYS_TRAINS.map(t => {
+        const journey = getUniversalJourneyPayload(t.number);
+        const delay = journey.delayMinutes;
+        return {
+          id: t.number,
+          name: t.name,
+          type: t.type,
+          origin: t.sourceCode,
+          originName: t.source,
+          destination: t.destCode,
+          destinationName: t.dest,
+          currentSection: 'SEC_VSKP_VZM',
+          currentLocationName: journey.currentLocationName,
+          lat: journey.latitude,
+          lng: journey.longitude,
+          speedKmH: journey.speed,
+          scheduledSpeedKmH: 110,
+          expectedSpeedKmH: 105,
+          headingDeg: journey.bearing,
+          currentDelayMin: delay,
+          prevStationDelayMin: Math.max(0, delay - 2),
+          status: (delay > 15 ? 'CRITICAL_DELAY' : delay > 5 ? 'MINOR_DELAY' : 'ON_TIME') as any,
+          statusText: journey.runningStatus,
+          statusColor: delay > 5 ? '#f59e0b' : '#10b981',
+          nextStation: journey.nextStationCode,
+          nextStationName: journey.nextStation,
+          distanceToNextStationKm: 42,
+          distanceToDestinationKm: 480,
+          scheduledNextArrival: '01:20',
+          predictedNextArrival: '01:34',
+          scheduledDestArrival: '13:45',
+          predictedDestArrival: '13:45',
+          predictedDestDelayMin: Math.max(0, delay - 4),
+          confidencePercent: 94.2,
+          dwellOverrunMin: 0,
+          weatherSeverity: 'CLEAR',
+          passengersOnboard: 1240,
+          rakeType: 'LHB',
+          locoType: 'WAP-7',
+          lastUpdated: new Date().toISOString()
+        };
+      });
+
+      let filtered = allTrains;
+      if (params?.search) {
+        const s = params.search.toLowerCase();
+        filtered = filtered.filter(t => t.id.includes(s) || t.name.toLowerCase().includes(s) || t.origin.toLowerCase().includes(s) || t.destination.toLowerCase().includes(s));
+      }
+
       return {
         success: true,
-        summary: { total: fallbackList.length, onTime: 3, delayed: 1, critical: 0, averageDelayMin: 6.8 },
-        trains: fallbackList
+        summary: { total: filtered.length, onTime: filtered.filter(t => t.currentDelayMin <= 5).length, delayed: filtered.filter(t => t.currentDelayMin > 5).length, critical: 0, averageDelayMin: 6.8 },
+        trains: filtered
       };
     }
   },
@@ -383,7 +155,7 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/trains/${id}`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         success: true,
         train: {
@@ -467,7 +239,7 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/trains/${id}/eta`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         success: true,
         train_number: journey.trainNumber,
@@ -484,11 +256,11 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/trains/${id}/delay-forecast`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         success: true,
         trainId: journey.trainNumber,
-        forecast: journey.routeStations.slice(5, 11).map((s: any, idx: number) => ({
+        forecast: journey.routeStations.slice(0, 6).map((s: any, idx: number) => ({
           station: s.name,
           code: s.code,
           scheduledTime: s.scheduledArrival,
@@ -503,7 +275,7 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/trains/${id}/stops`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         success: true,
         trainId: journey.trainNumber,
@@ -516,7 +288,7 @@ export const api = {
     try {
       return await safeFetchJson(`${V1_BASE}/trains/${id}/live`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         success: true,
         train_number: journey.trainNumber,
@@ -547,7 +319,7 @@ export const api = {
     try {
       return await safeFetchJson(`${V1_BASE}/trains/${id}/route?format=geojson&stops=true`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(id);
+      const journey = getUniversalJourneyPayload(id);
       return {
         type: 'FeatureCollection',
         features: [
@@ -575,17 +347,18 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/network/stations`);
     } catch (err) {
+      const stnList = Object.entries(IR_STATION_DATABASE).map(([code, s]) => ({
+        code,
+        name: s.name,
+        zone: s.zone,
+        lat: s.lat,
+        lng: s.lng,
+        platforms: code === 'HWH' ? 23 : (code === 'CSMT' ? 18 : (code === 'NDLS' ? 16 : 8)),
+        division: s.zone
+      }));
       return {
         success: true,
-        stations: [
-          { code: 'SMVB', name: 'SMVT Bengaluru', zone: 'SWR', lat: 12.993, lng: 77.651, platforms: 7, division: 'SBC' },
-          { code: 'VSKP', name: 'Visakhapatnam Junction', zone: 'ECoR', lat: 17.721, lng: 83.298, platforms: 8, division: 'WAT' },
-          { code: 'VZM', name: 'Vizianagaram Junction', zone: 'ECoR', lat: 18.106, lng: 83.395, platforms: 5, division: 'WAT' },
-          { code: 'CHE', name: 'Srikakulam Road', zone: 'ECoR', lat: 18.298, lng: 83.896, platforms: 4, division: 'WAT' },
-          { code: 'BBS', name: 'Bhubaneswar', zone: 'ECoR', lat: 20.296, lng: 85.824, platforms: 6, division: 'KUR' },
-          { code: 'KGP', name: 'Kharagpur Junction', zone: 'SER', lat: 22.339, lng: 87.321, platforms: 12, division: 'KGP' },
-          { code: 'HWH', name: 'Howrah Junction', zone: 'ER', lat: 22.583, lng: 88.342, platforms: 23, division: 'HWH' }
-        ]
+        stations: stnList
       };
     }
   },
@@ -624,7 +397,7 @@ export const api = {
           statusText: 'Running (+14m)',
           lastUpdated: new Date().toLocaleTimeString()
         },
-        stops: FALLBACK_TRAINS['12864'].stations
+        stops: getUniversalJourneyPayload('12864').routeStations
       };
     }
   },
@@ -633,7 +406,7 @@ export const api = {
     try {
       return await safeFetchJson(`${API_BASE}/pnr/offline-pack/${trainId}`);
     } catch (err) {
-      const journey = getFallbackTrainJourney(trainId);
+      const journey = getUniversalJourneyPayload(trainId);
       return {
         success: true,
         manifestVersion: 'v2.4-PWA-PACK',
@@ -1002,7 +775,7 @@ export const api = {
   _journeyCache: new Map<string, { timestamp: number; data: any }>(),
   _searchCache: new Map<string, { timestamp: number; data: any }>(),
 
-  // DEDICATED PASSENGER ENDPOINTS (With Seamless Local Fallback)
+  // DEDICATED PASSENGER ENDPOINTS (With Universal Indian Railways Search & Procedural Resolution)
   async searchPassengerTrains(query: string): Promise<any> {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return { success: true, trains: [] };
@@ -1014,33 +787,19 @@ export const api = {
 
     try {
       const data = await safeFetchJson<any>(`${API_BASE}/passenger/trains/search?q=${encodeURIComponent(query)}`);
-      if (data?.success) {
+      if (data?.success && Array.isArray(data.trains) && data.trains.length > 0) {
         this._searchCache.set(trimmed, { timestamp: Date.now(), data });
         return data;
       }
     } catch (e) {
-      // Local Search Fallback
+      // Offline fallback
     }
 
-    const allFallback = Object.values(FALLBACK_TRAINS);
-    const filtered = allFallback.filter((t: any) =>
-      t.number.includes(trimmed) ||
-      t.name.toLowerCase().includes(trimmed) ||
-      t.source.toLowerCase().includes(trimmed) ||
-      t.sourceCode.toLowerCase().includes(trimmed) ||
-      t.dest.toLowerCase().includes(trimmed) ||
-      t.destCode.toLowerCase().includes(trimmed)
-    );
-
-    if (filtered.length === 0 && /^\d{4,5}$/.test(trimmed)) {
-      const generated = generateProceduralTrain(trimmed);
-      filtered.push(generated);
-    }
-
+    const matches = searchAllIndianRailwaysTrains(trimmed);
     const res = {
       success: true,
-      count: filtered.length,
-      trains: filtered.map((t: any) => ({
+      count: matches.length,
+      trains: matches.map(t => ({
         id: t.number,
         number: t.number,
         name: t.name,
@@ -1051,6 +810,7 @@ export const api = {
         destName: t.dest,
         destCode: t.destCode,
         type: t.type,
+        zone: t.zone,
         runningDays: t.runningDays
       }))
     };
@@ -1068,24 +828,24 @@ export const api = {
 
     try {
       const data = await safeFetchJson<any>(`${API_BASE}/passenger/trains/${trainId}/journey`);
-      if (data?.success) {
+      if (data?.success && data.routeStations?.length > 0) {
         this._journeyCache.set(trainId, { timestamp: Date.now(), data });
         return data;
       }
     } catch (e) {
-      // Fallback
+      // Offline fallback
     }
 
-    const fallbackData = getFallbackTrainJourney(trainId);
-    this._journeyCache.set(trainId, { timestamp: Date.now(), data: fallbackData });
-    return fallbackData;
+    const universalData = getUniversalJourneyPayload(trainId);
+    this._journeyCache.set(trainId, { timestamp: Date.now(), data: universalData });
+    return universalData;
   },
 
   async getPassengerLive(trainId: string): Promise<any> {
     try {
       return await safeFetchJson(`${API_BASE}/passenger/trains/${trainId}/live`);
     } catch (e) {
-      const journey = getFallbackTrainJourney(trainId);
+      const journey = getUniversalJourneyPayload(trainId);
       return {
         success: true,
         trainNumber: journey.trainNumber,

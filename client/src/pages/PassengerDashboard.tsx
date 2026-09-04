@@ -96,6 +96,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
     { id: 'SHATABDI', label: 'Shatabdi' },
     { id: 'DURONTO', label: 'Duronto' },
     { id: 'SUPERFAST', label: 'Superfast' },
+    { id: 'MAIL', label: 'Mail' },
     { id: 'EXPRESS', label: 'Express' }
   ];
 
@@ -103,9 +104,14 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
     { id: '12864', name: 'Howrah SF Exp (SMVB→HWH)', type: 'SUPERFAST' },
     { id: '20833', name: 'Vande Bharat (VSKP→SC)', type: 'VANDE_BHARAT' },
     { id: '12301', name: 'Howrah Rajdhani (HWH→NDLS)', type: 'RAJDHANI' },
-    { id: '12723', name: 'Telangana Exp (HYB→NDLS)', type: 'SUPERFAST' },
+    { id: '12951', name: 'Mumbai Rajdhani (MMCT→NDLS)', type: 'RAJDHANI' },
+    { id: '22436', name: 'Vande Bharat (NDLS→BSB)', type: 'VANDE_BHARAT' },
     { id: '12002', name: 'Bhopal Shatabdi (NDLS→RKMP)', type: 'SHATABDI' },
     { id: '12245', name: 'Bengaluru Duronto (HWH→SMVB)', type: 'DURONTO' },
+    { id: '12723', name: 'Telangana Exp (HYB→NDLS)', type: 'SUPERFAST' },
+    { id: '12841', name: 'Coromandel Exp (HWH→MAS)', type: 'SUPERFAST' },
+    { id: '12626', name: 'Kerala Exp (NDLS→TVC)', type: 'SUPERFAST' },
+    { id: '12137', name: 'Punjab Mail (CSMT→FZR)', type: 'MAIL' },
     { id: '12728', name: 'Godavari SF Exp (HYB→VSKP)', type: 'SUPERFAST' }
   ];
 
