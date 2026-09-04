@@ -1,0 +1,12 @@
+{
+  "name": "railpulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RailPulse AI — Dynamic Forecast of Expected Time of Arrival (ETA) for Coaching Trains",
+  "scripts": {
+    "dev": "npm run dev --prefix client",
+    "build": "cd client && npm install && npm run build",
+    "vercel-build": "cd client && npm install && npm run build",
+    "preview": "npm run preview --prefix client"
+  }
+}
