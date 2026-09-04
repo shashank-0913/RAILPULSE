@@ -15,9 +15,17 @@ class TrainWebSocketService {
     this.disconnect();
     this.currentTrain = trainNumber;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/trains/${trainNumber}`;
+    const backendUrl = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+    let wsBase = '';
+    if (backendUrl) {
+      const wsProto = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+      wsBase = backendUrl.replace(/^https?:/, wsProto);
+    } else {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      wsBase = `${protocol}//${host}`;
+    }
+    const wsUrl = `${wsBase}/ws/trains/${trainNumber}`;
 
     try {
       this.socket = new WebSocket(wsUrl);

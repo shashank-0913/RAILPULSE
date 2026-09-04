@@ -12,7 +12,9 @@ import {
   ControllerAction
 } from '../types';
 
-const API_BASE = '/api';
+const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+export const V1_BASE = BACKEND_URL ? `${BACKEND_URL}/v1` : '/v1';
 
 export const api = {
   // Auth & Security
@@ -122,7 +124,7 @@ export const api = {
     last_updated: string;
   }> {
     try {
-      const res = await fetch(`/v1/trains/${id}/live`);
+      const res = await fetch(`${V1_BASE}/trains/${id}/live`);
       return await res.json();
     } catch (e) {
       // Fallback to /api/trains/${id}
@@ -162,7 +164,7 @@ export const api = {
     stations?: any[];
   }> {
     try {
-      const res = await fetch(`/v1/trains/${id}/route?format=geojson&stops=true`);
+      const res = await fetch(`${V1_BASE}/trains/${id}/route?format=geojson&stops=true`);
       return await res.json();
     } catch (e) {
       const res = await fetch(`${API_BASE}/trains/${id}/route?format=geojson&stops=true`);

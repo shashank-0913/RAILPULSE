@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, API_BASE } from './api';
 import { Train, Station, Section } from '../types';
 
 export const trainService = {
@@ -9,7 +9,7 @@ export const trainService = {
 
   async getTrainLiveStatus(trainNumber: string) {
     try {
-      const res = await fetch(`/api/trains/${trainNumber}/live`);
+      const res = await fetch(`${API_BASE}/trains/${trainNumber}/live`);
       return await res.json();
     } catch (err) {
       console.warn('Live API fallback for train', trainNumber);
@@ -19,7 +19,7 @@ export const trainService = {
 
   async getTrainRoute(trainNumber: string) {
     try {
-      const res = await fetch(`/api/trains/${trainNumber}/route`);
+      const res = await fetch(`${API_BASE}/trains/${trainNumber}/route`);
       return await res.json();
     } catch (err) {
       return null;
@@ -28,7 +28,7 @@ export const trainService = {
 
   async trackTrain(trainNumber: string, channels: string[] = ['IN_APP']) {
     try {
-      const res = await fetch('/api/trains/track', {
+      const res = await fetch(`${API_BASE}/trains/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ train_number: trainNumber, notification_channels: channels })

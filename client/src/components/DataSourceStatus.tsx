@@ -23,13 +23,15 @@ interface SystemStatusResponse {
   timestamp: string;
 }
 
+import { api, API_BASE } from '../services/api';
+
 export const DataSourceStatus: React.FC = () => {
   const [status, setStatus] = useState<SystemStatusResponse | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch('/api/system/status');
+      const res = await fetch(`${API_BASE}/system/status`);
       if (res.ok) {
         const data = await res.json();
         setStatus(data);

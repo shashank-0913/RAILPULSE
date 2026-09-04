@@ -1,10 +1,10 @@
-import { api } from './api';
+import { API_BASE } from './api';
 
 export const etaService = {
   async getTrainETA(trainNumber: string, stationId?: string) {
     try {
       const q = stationId ? `?station_id=${stationId}` : '';
-      const res = await fetch(`/api/trains/${trainNumber}/eta${q}`);
+      const res = await fetch(`${API_BASE}/trains/${trainNumber}/eta${q}`);
       return await res.json();
     } catch (err) {
       console.warn('ETA fetch error, falling back', err);
@@ -14,7 +14,7 @@ export const etaService = {
 
   async getPropagationAnalysis(trainNumber: string) {
     try {
-      const res = await fetch(`/api/trains/${trainNumber}/propagation`);
+      const res = await fetch(`${API_BASE}/trains/${trainNumber}/propagation`);
       return await res.json();
     } catch (err) {
       return null;
@@ -23,7 +23,7 @@ export const etaService = {
 
   async getCongestionAnalytics() {
     try {
-      const res = await fetch('/api/analytics/congestion');
+      const res = await fetch(`${API_BASE}/analytics/congestion`);
       return await res.json();
     } catch (err) {
       return null;
