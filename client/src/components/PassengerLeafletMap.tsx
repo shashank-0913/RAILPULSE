@@ -61,9 +61,9 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18,
-      subdomains: 'abcd'
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     const layersGroup = L.layerGroup().addTo(map);
