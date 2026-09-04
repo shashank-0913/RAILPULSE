@@ -949,46 +949,52 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
 
               {weatherLoading && !trainWeather ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div className="skeleton-box" style={{ height: '90px' }}></div>
-                  <div className="skeleton-box" style={{ height: '90px' }}></div>
+                  <div className="skeleton-box" style={{ height: '110px' }}></div>
+                  <div className="skeleton-box" style={{ height: '110px' }}></div>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   {/* Train Weather */}
                   <div style={{ background: 'var(--bg-elevated)', borderRadius: '8px', padding: '0.75rem' }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-cyan)', textTransform: 'uppercase' }}>
-                      🚆 Train Location ({currentStation})
+                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-cyan)', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>🚆 Train Location ({currentStation})</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{trainWeather?.feels_like_c ? `Feels ${trainWeather.feels_like_c}°C` : ''}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.35rem 0' }}>
                       <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono' }}>
-                        {trainWeather ? `${trainWeather.temperature_c}°C` : '28.5°C'}
+                        {trainWeather ? `${trainWeather.temperature_c ?? trainWeather.temperatureC}°C` : '28.5°C'}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        {trainWeather?.weather_condition || 'Partly Cloudy'}
+                        {trainWeather?.weather_condition || trainWeather?.condition || 'Partly Cloudy'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Wind: {trainWeather?.wind_speed_kmh || 12} km/h</span>
-                      <span>Humidity: {trainWeather?.humidity_percent || 62}%</span>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem' }}>
+                      <span>Wind: {trainWeather?.wind_speed_kmh ?? trainWeather?.windSpeedKmH ?? 12.4} km/h</span>
+                      <span>Humidity: {trainWeather?.humidity_percent ?? trainWeather?.humidityPercent ?? 62}%</span>
+                      <span>Pressure: {trainWeather?.pressure_hpa ?? 1012} hPa</span>
+                      <span>Precip: {trainWeather?.precipitation_mm ?? 0.0} mm</span>
                     </div>
                   </div>
 
                   {/* Passenger / Boarding Weather */}
                   <div style={{ background: 'var(--bg-elevated)', borderRadius: '8px', padding: '0.75rem' }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-green)', textTransform: 'uppercase' }}>
-                      📍 Boarding ({boardingStation})
+                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-green)', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>📍 Boarding ({boardingStation})</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{passengerWeather?.feels_like_c ? `Feels ${passengerWeather.feels_like_c}°C` : ''}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.35rem 0' }}>
                       <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono' }}>
-                        {passengerWeather ? `${passengerWeather.temperature_c}°C` : '29.0°C'}
+                        {passengerWeather ? `${passengerWeather.temperature_c ?? passengerWeather.temperatureC}°C` : '29.0°C'}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        {passengerWeather?.weather_condition || 'Clear Sky'}
+                        {passengerWeather?.weather_condition || passengerWeather?.condition || 'Clear Sky'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Rain Prob: {passengerWeather?.rain_probability || 10}%</span>
-                      <span>Visibility: {passengerWeather?.visibility_km || 10} km</span>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem' }}>
+                      <span>Rain Prob: {passengerWeather?.rain_probability ?? 10}%</span>
+                      <span>Visibility: {passengerWeather?.visibility_km ?? passengerWeather?.visibilityKm ?? 10} km</span>
+                      <span>Wind: {passengerWeather?.wind_speed_kmh ?? passengerWeather?.windSpeedKmH ?? 11.2} km/h</span>
+                      <span>Humidity: {passengerWeather?.humidity_percent ?? passengerWeather?.humidityPercent ?? 58}%</span>
                     </div>
                   </div>
                 </div>
@@ -1008,7 +1014,9 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 gap: '0.5rem'
               }}>
                 <CloudRain size={14} color="var(--color-cyan)" />
-                <span>Good visibility along corridor. Track adhesion normal with zero severe weather cautions.</span>
+                <span>
+                  {trainWeather?.operationalImpact || 'Optimal. Mainline track adhesion normal with zero weather-induced caution orders.'}
+                </span>
               </div>
             </div>
           </div>
