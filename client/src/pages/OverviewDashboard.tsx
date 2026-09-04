@@ -64,13 +64,15 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
   return (
     <div className="page-wrapper">
       {/* Top Banner: Core Intelligence Tagline */}
-      <div style={{
+      <div className="control-header-responsive" style={{
         background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%)',
         border: '1px solid var(--border-subtle)',
         borderRadius: '12px',
         padding: '1.25rem 1.5rem',
         marginBottom: '1.5rem',
         display: 'flex',
+        flexWrap: 'wrap',
+        gap: '1rem',
         alignItems: 'center',
         justifyContent: 'space-between',
         boxShadow: 'var(--card-shadow)'
@@ -225,7 +227,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
       </div>
 
       {/* Main Two-Column Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Left Column: Live Active Trains Monitor */}
         <div className="control-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>

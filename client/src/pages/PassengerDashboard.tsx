@@ -32,7 +32,9 @@ import {
   Sliders,
   Filter,
   Compass,
-  AlertCircle
+  AlertCircle,
+  Menu,
+  X
 } from 'lucide-react';
 import { api } from '../services/api';
 import { PassengerLeafletMap } from '../components/PassengerLeafletMap';
@@ -66,6 +68,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'timeline' | 'weather' | 'why_delayed' | 'forecast' | 'alerts' | 'pnr'>('overview');
   const [isTickLoading, setIsTickLoading] = useState(false);
   const [lastUpdatedSec, setLastUpdatedSec] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Separate Passenger Journey State (Independent from train GPS shifts)
   const [boardingStation, setBoardingStation] = useState<string>('SMVB');
@@ -332,41 +335,39 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
         zIndex: 50
       }}>
         {/* Left: Logo & Station Context */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
-              flexShrink: 0
-            }}>
-              <Radio size={20} color="#ffffff" className="animate-pulse" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
+            flexShrink: 0
+          }}>
+            <Radio size={20} color="#ffffff" className="animate-pulse" />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <span className="font-heading" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
+              </span>
+              <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-green)', fontWeight: 700 }}>
+                PASSENGER PORTAL
+              </span>
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <span className="font-heading" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                  RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
-                </span>
-                <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-green)', fontWeight: 700 }}>
-                  PASSENGER PORTAL
-                </span>
-              </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                Indian Railways Live Tracking & Dynamic AI ETA
-              </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+              Indian Railways Live Tracking & Dynamic AI ETA
             </div>
           </div>
         </div>
 
-        {/* Center & Right Controls on Responsive Grid */}
-        <div className="passenger-header-row2" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {/* Desktop Tools (Visible on Tablet & Desktop) */}
+        <div className="passenger-header-desktop-tools" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {/* Live Status & Refresh */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{
               fontSize: '0.7rem',
               fontWeight: 800,
@@ -391,14 +392,14 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               onClick={() => loadTrainJourney(selectedTrainId)}
               className="btn-icon"
               title="Refresh Live Telemetry"
-              style={{ width: '28px', height: '28px' }}
+              style={{ width: '32px', height: '32px' }}
             >
-              <RefreshCw size={13} className={loading ? 'spin' : ''} />
+              <RefreshCw size={14} className={loading ? 'spin' : ''} />
             </button>
           </div>
 
-          {/* Right: User Profile, Theme & Controller Switch */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          {/* User Profile, Theme & Controller Switch */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -420,10 +421,9 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               className="btn-theme-toggle"
               style={{ fontSize: '0.725rem', padding: '0.35rem 0.65rem' }}
             >
-              {theme === 'dark' ? '☀️' : '🌙'}
+              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
             </button>
 
-            {/* Official Controller Portal Trigger */}
             <button
               onClick={onOpenControllerGate || onSwitchRole}
               style={{
@@ -450,14 +450,144 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 onClick={onLogout}
                 className="btn-icon"
                 title="Log out"
-                style={{ width: '30px', height: '30px', color: 'var(--text-muted)' }}
+                style={{ width: '32px', height: '32px', color: 'var(--text-muted)' }}
               >
-                <LogOut size={14} />
+                <LogOut size={15} />
               </button>
             )}
           </div>
         </div>
+
+        {/* Mobile Header Quick Actions & Menu Toggle Button */}
+        <div className="passenger-header-mobile-toggle" style={{ display: 'none', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            onClick={() => loadTrainJourney(selectedTrainId)}
+            className="btn-icon"
+            title="Refresh Live Telemetry"
+            style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}
+          >
+            <RefreshCw size={16} className={loading ? 'spin' : ''} />
+          </button>
+
+          <button
+            onClick={() => setIsMobileMenuOpen(prev => !prev)}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text-primary)',
+              cursor: 'pointer'
+            }}
+            title="Open Passenger Tools Menu"
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </header>
+
+      {/* Mobile Slide-Out Drawer Navigation */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="mobile-sidebar-backdrop" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="passenger-mobile-menu-drawer">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <UserCheck size={18} color="var(--color-green)" />
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{user?.fullName || 'Passenger User'}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--color-green)', fontFamily: 'JetBrains Mono' }}>Verified Passenger</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+              {/* Telemetry Status Pill */}
+              <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.75rem' }}>
+                <div style={{ color: 'var(--text-muted)', marginBottom: '4px', fontSize: '0.65rem' }}>TELEMETRY STATUS</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="radar-live-dot" style={{ background: dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b' }}></span>
+                  <strong>{dataSource === 'RAILRADAR' ? 'Live RailRadar Data' : 'High-Fidelity Simulation'}</strong>
+                </div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: '4px' }}>
+                  Last sync: {lastUpdatedSec}s ago
+                </div>
+              </div>
+
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => { onToggleTheme(); setIsMobileMenuOpen(false); }}
+                className="btn-secondary"
+                style={{ width: '100%', minHeight: '44px', justifyContent: 'center', gap: '0.5rem' }}
+              >
+                <span>{theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}</span>
+              </button>
+
+              {/* GPS Geolocation Toggle */}
+              {locationPermission !== 'GRANTED' && (
+                <button
+                  onClick={() => { handleRequestLocation(); setIsMobileMenuOpen(false); }}
+                  className="btn-cyan"
+                  style={{ width: '100%', minHeight: '44px', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <Compass size={16} />
+                  <span>Enable Live Device GPS</span>
+                </button>
+              )}
+
+              {/* Controller Room Link */}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  if (onOpenControllerGate) onOpenControllerGate();
+                  else onSwitchRole();
+                }}
+                style={{
+                  width: '100%',
+                  minHeight: '44px',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  border: '1px solid rgba(245, 158, 11, 0.4)',
+                  borderRadius: '8px',
+                  color: '#f59e0b',
+                  fontWeight: 700,
+                  fontSize: '0.825rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <ShieldAlert size={16} />
+                <span>Switch to Controller Room</span>
+              </button>
+            </div>
+
+            {onLogout && (
+              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem' }}>
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); onLogout(); }}
+                  className="btn-danger"
+                  style={{ width: '100%', minHeight: '44px', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <LogOut size={16} />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* 2. PASSENGER GPS PERMISSION & LOCATION BANNER */}
       <div style={{
@@ -605,8 +735,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
           </div>
 
           {/* Train Category Filter Chips */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+          <div className="filter-chips-scroll-row" style={{ marginTop: '0.25rem' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
               <Filter size={12} /> Filter:
             </span>
             {trainCategories.map(cat => (
@@ -615,21 +745,23 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 onClick={() => setSelectedCategory(cat.id)}
                 className="clickable-pill"
                 style={{
-                  fontSize: '0.7rem',
-                  padding: '0.2rem 0.6rem',
+                  fontSize: '0.725rem',
+                  padding: '0.3rem 0.75rem',
+                  minHeight: '34px',
                   borderRadius: '9999px',
                   border: selectedCategory === cat.id ? '1px solid var(--color-green)' : '1px solid var(--border-subtle)',
                   background: selectedCategory === cat.id ? 'var(--color-green-glow)' : 'transparent',
                   color: selectedCategory === cat.id ? 'var(--color-green)' : 'var(--text-secondary)',
                   fontWeight: selectedCategory === cat.id ? 700 : 500,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flexShrink: 0
                 }}
               >
                 {cat.label}
               </button>
             ))}
 
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: 'auto', flexShrink: 0, paddingLeft: '0.5rem' }}>
               Quick Select:
             </span>
             {quickTrains.slice(0, 4).map(t => (
@@ -638,13 +770,16 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 onClick={() => handleSelectTrain(t.id)}
                 className="clickable-pill"
                 style={{
-                  fontSize: '0.675rem',
-                  padding: '0.15rem 0.5rem',
-                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  padding: '0.25rem 0.6rem',
+                  minHeight: '34px',
+                  borderRadius: '6px',
                   border: selectedTrainId === t.id ? '1px solid var(--color-cyan)' : '1px solid var(--border-subtle)',
                   background: selectedTrainId === t.id ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-elevated)',
                   color: selectedTrainId === t.id ? 'var(--color-cyan)' : 'var(--text-secondary)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  fontWeight: 600
                 }}
               >
                 #{t.id}
@@ -661,25 +796,29 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               borderRadius: '8px',
               maxHeight: '260px',
               overflowY: 'auto',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)'
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
             }}>
               {searchResults.map((train) => (
                 <div
                   key={train.number || train.id}
                   onClick={() => handleSelectTrain(train.number || train.id)}
                   style={{
-                    padding: '0.65rem 1rem',
+                    padding: '0.75rem 1rem',
                     borderBottom: '1px solid var(--border-subtle)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    transition: 'background 0.15s ease'
+                    transition: 'background 0.15s ease',
+                    minHeight: '44px'
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-cyan-glow)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <div>
+                  <div style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     <span style={{ fontWeight: 800, color: 'var(--color-cyan)', marginRight: '0.5rem' }}>
                       #{train.number || train.id}
                     </span>
@@ -690,7 +829,7 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                       ({train.source || train.sourceName} &rarr; {train.dest || train.destName})
                     </span>
                   </div>
-                  <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'var(--badge-default-bg)', color: 'var(--badge-default-text)', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'var(--badge-default-bg)', color: 'var(--badge-default-text)', fontWeight: 700, flexShrink: 0, marginLeft: '0.5rem' }}>
                     {train.type || 'EXPRESS'}
                   </span>
                 </div>
@@ -709,14 +848,14 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               </h2>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', flexWrap: 'wrap' }}>
               {passengerDistanceToBoardingKm !== null && (
-                <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+                <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '0.25rem 0.55rem', borderRadius: '4px', fontWeight: 700 }}>
                   You &rarr; Boarding: {passengerDistanceToBoardingKm} km
                 </span>
               )}
               {trainDistanceToBoardingKm !== null && (
-                <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+                <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.25rem 0.55rem', borderRadius: '4px', fontWeight: 700 }}>
                   Train &rarr; Boarding: {trainDistanceToBoardingKm} km
                 </span>
               )}
@@ -734,7 +873,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 onChange={(e) => setBoardingStation(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '0.55rem 0.75rem',
+                  padding: '0.65rem 0.75rem',
+                  minHeight: '44px',
                   background: 'var(--bg-elevated)',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: '6px',
@@ -764,7 +904,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 onChange={(e) => setPassengerDestination(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '0.55rem 0.75rem',
+                  padding: '0.65rem 0.75rem',
+                  minHeight: '44px',
                   background: 'var(--bg-elevated)',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: '6px',
@@ -786,8 +927,8 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
             </div>
           </div>
 
-          {/* Visual Journey Multi-segment Progress Bar */}
-          <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px' }}>
+          {/* Desktop Visual Journey Progress Bar */}
+          <div className="journey-progress-desktop" style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.35rem' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.675rem' }}>BOARDING:</span>{' '}
@@ -821,6 +962,98 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
               <span>Origin: {trainSource}</span>
               <span>Running Status: {isDelayed ? `Delayed by ${currentDelay}m` : 'Running On-Time'}</span>
               <span>Final: {trainDestination}</span>
+            </div>
+          </div>
+
+          {/* Mobile Vertical Adaptive Journey Flow */}
+          <div className="journey-progress-mobile" style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', gap: '0.75rem' }}>
+            {/* Step 1: Boarding */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(56, 189, 248, 0.2)',
+                border: '2px solid var(--color-cyan)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                color: 'var(--color-cyan)',
+                fontWeight: 800,
+                flexShrink: 0
+              }}>
+                1
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>YOUR BOARDING STATION</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-cyan)' }}>{boardingStation}</div>
+                {passengerDistanceToBoardingKm !== null && (
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    Distance from you: <strong>{passengerDistanceToBoardingKm} km</strong>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Vertical Connector */}
+            <div style={{ marginLeft: '13px', width: '2px', height: '20px', background: 'linear-gradient(180deg, var(--color-cyan) 0%, var(--color-green) 100%)' }}></div>
+
+            {/* Step 2: Live Train Position */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.2)',
+                border: '2px solid var(--color-green)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.85rem',
+                flexShrink: 0
+              }}>
+                🚆
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>CURRENT TRAIN LOCATION</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-green)' }}>
+                  {currentStation} • {speed} km/h
+                </div>
+                <div style={{ fontSize: '0.7rem', color: isDelayed ? '#ef4444' : '#10b981', fontWeight: 700, marginTop: '2px' }}>
+                  {isDelayed ? `⚠️ Late by ${currentDelay} min` : '✓ Running On-Time'}
+                </div>
+              </div>
+            </div>
+
+            {/* Vertical Connector */}
+            <div style={{ marginLeft: '13px', width: '2px', height: '20px', background: 'linear-gradient(180deg, var(--color-green) 0%, #f59e0b 100%)' }}></div>
+
+            {/* Step 3: Destination */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(245, 158, 11, 0.2)',
+                border: '2px solid #f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                color: '#f59e0b',
+                fontWeight: 800,
+                flexShrink: 0
+              }}>
+                🏁
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>YOUR DESTINATION</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f59e0b' }}>{passengerDestination}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  Route: {trainSource} &rarr; {trainDestination}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1071,50 +1304,140 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
                 <div className="skeleton-box" style={{ height: '32px', width: '100%' }}></div>
               </div>
             ) : (
-              <div className="table-responsive-wrapper">
-                <table className="telemetry-table" style={{ fontSize: '0.8rem', minWidth: '600px' }}>
-                  <thead>
-                    <tr>
-                      <th>STATION</th>
-                      <th>SCHEDULED ARR / DEP</th>
-                      <th>AI PREDICTED ETA</th>
-                      <th>DELAY DELTA</th>
-                      <th>PLATFORM</th>
-                      <th>STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {routeStations.slice(0, 12).map((st: any, idx: number) => {
-                      const isBoarding = st.code === boardingStation;
-                      const isDest = st.code === passengerDestination;
-                      return (
-                        <tr key={st.code || idx} style={{ background: isBoarding ? 'rgba(56, 189, 248, 0.08)' : isDest ? 'rgba(245, 158, 11, 0.08)' : undefined }}>
-                          <td>
-                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                              {st.name} <span style={{ color: 'var(--color-cyan)', fontSize: '0.75rem' }}>({st.code})</span>
-                            </div>
-                            {isBoarding && <span style={{ fontSize: '0.625rem', color: 'var(--color-cyan)', fontWeight: 800 }}>★ YOUR BOARDING STATION</span>}
-                            {isDest && <span style={{ fontSize: '0.625rem', color: '#f59e0b', fontWeight: 800 }}>🎯 YOUR DESTINATION</span>}
-                          </td>
-                          <td style={{ fontFamily: 'JetBrains Mono' }}>{st.scheduledArr || st.scheduledDep || '09:40'}</td>
-                          <td style={{ fontFamily: 'JetBrains Mono', color: 'var(--color-green)', fontWeight: 700 }}>
-                            {st.predictedArr || '09:52'}
-                          </td>
-                          <td style={{ color: isDelayed ? '#ef4444' : 'var(--color-green)', fontWeight: 700 }}>
-                            +{currentDelay} min
-                          </td>
-                          <td>Platform {st.platform || '1'}</td>
-                          <td>
-                            <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 700 }}>
-                              {idx < 3 ? 'PASSED' : idx === 3 ? 'APPROACHING' : 'CONFIRMED'}
-                            </span>
-                          </td>
+              <>
+                {/* Desktop/Tablet Table View */}
+                <div className="desktop-timeline-table">
+                  <div className="table-responsive-wrapper">
+                    <table className="telemetry-table" style={{ fontSize: '0.8rem', minWidth: '600px' }}>
+                      <thead>
+                        <tr>
+                          <th>STATION</th>
+                          <th>SCHEDULED ARR / DEP</th>
+                          <th>AI PREDICTED ETA</th>
+                          <th>DELAY DELTA</th>
+                          <th>PLATFORM</th>
+                          <th>STATUS</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody>
+                        {routeStations.slice(0, 12).map((st: any, idx: number) => {
+                          const isBoarding = st.code === boardingStation;
+                          const isDest = st.code === passengerDestination;
+                          return (
+                            <tr key={st.code || idx} style={{ background: isBoarding ? 'rgba(56, 189, 248, 0.08)' : isDest ? 'rgba(245, 158, 11, 0.08)' : undefined }}>
+                              <td>
+                                <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+                                  {st.name} <span style={{ color: 'var(--color-cyan)', fontSize: '0.75rem' }}>({st.code})</span>
+                                </div>
+                                {isBoarding && <span style={{ fontSize: '0.625rem', color: 'var(--color-cyan)', fontWeight: 800 }}>★ YOUR BOARDING STATION</span>}
+                                {isDest && <span style={{ fontSize: '0.625rem', color: '#f59e0b', fontWeight: 800 }}>🎯 YOUR DESTINATION</span>}
+                              </td>
+                              <td style={{ fontFamily: 'JetBrains Mono' }}>{st.scheduledArr || st.scheduledDep || '09:40'}</td>
+                              <td style={{ fontFamily: 'JetBrains Mono', color: 'var(--color-green)', fontWeight: 700 }}>
+                                {st.predictedArr || '09:52'}
+                              </td>
+                              <td style={{ color: isDelayed ? '#ef4444' : 'var(--color-green)', fontWeight: 700 }}>
+                                +{currentDelay} min
+                              </td>
+                              <td>Platform {st.platform || '1'}</td>
+                              <td>
+                                <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 700 }}>
+                                  {idx < 3 ? 'PASSED' : idx === 3 ? 'APPROACHING' : 'CONFIRMED'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Mobile Responsive Cards View */}
+                <div className="mobile-timeline-cards">
+                  {routeStations.slice(0, 12).map((st: any, idx: number) => {
+                    const isBoarding = st.code === boardingStation;
+                    const isDest = st.code === passengerDestination;
+                    const statusText = idx < 3 ? 'PASSED' : idx === 3 ? 'APPROACHING' : 'CONFIRMED';
+                    const statusBg = idx < 3 ? 'rgba(148, 163, 184, 0.15)' : idx === 3 ? 'rgba(56, 189, 248, 0.2)' : 'rgba(16, 185, 129, 0.15)';
+                    const statusColor = idx < 3 ? 'var(--text-muted)' : idx === 3 ? 'var(--color-cyan)' : '#10b981';
+
+                    return (
+                      <div
+                        key={st.code || idx}
+                        style={{
+                          background: isBoarding ? 'rgba(56, 189, 248, 0.08)' : isDest ? 'rgba(245, 158, 11, 0.08)' : 'var(--bg-elevated)',
+                          border: isBoarding ? '1px solid var(--color-cyan)' : isDest ? '1px solid #f59e0b' : '1px solid var(--border-subtle)',
+                          borderRadius: '8px',
+                          padding: '0.85rem 1rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.6rem'
+                        }}
+                      >
+                        {/* Header: Station + Status */}
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
+                          <div>
+                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                              {st.name} <span style={{ color: 'var(--color-cyan)', fontSize: '0.8rem' }}>({st.code})</span>
+                            </div>
+                            {isBoarding && <div style={{ fontSize: '0.65rem', color: 'var(--color-cyan)', fontWeight: 800, marginTop: '2px' }}>★ YOUR BOARDING STATION</div>}
+                            {isDest && <div style={{ fontSize: '0.65rem', color: '#f59e0b', fontWeight: 800, marginTop: '2px' }}>🎯 YOUR DESTINATION</div>}
+                          </div>
+                          <span style={{
+                            fontSize: '0.675rem',
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '4px',
+                            background: statusBg,
+                            color: statusColor,
+                            fontWeight: 800,
+                            flexShrink: 0
+                          }}>
+                            {statusText}
+                          </span>
+                        </div>
+
+                        {/* Timeline Data Grid */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '0.5rem',
+                          fontSize: '0.75rem',
+                          background: 'var(--bg-surface)',
+                          padding: '0.65rem',
+                          borderRadius: '6px',
+                          border: '1px solid var(--border-subtle)'
+                        }}>
+                          <div>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', display: 'block' }}>SCHEDULED</span>
+                            <strong style={{ fontFamily: 'JetBrains Mono', color: 'var(--text-primary)' }}>
+                              {st.scheduledArr || st.scheduledDep || '09:40'}
+                            </strong>
+                          </div>
+                          <div>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', display: 'block' }}>AI ETA</span>
+                            <strong style={{ fontFamily: 'JetBrains Mono', color: 'var(--color-green)' }}>
+                              {st.predictedArr || '09:52'}
+                            </strong>
+                          </div>
+                          <div>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', display: 'block' }}>DELAY DELTA</span>
+                            <strong style={{ color: isDelayed ? '#ef4444' : 'var(--color-green)' }}>
+                              +{currentDelay} min
+                            </strong>
+                          </div>
+                          <div>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', display: 'block' }}>PLATFORM</span>
+                            <strong style={{ color: 'var(--text-primary)' }}>
+                              Platform {st.platform || '1'}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         )}

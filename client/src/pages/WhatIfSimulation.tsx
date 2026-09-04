@@ -368,7 +368,7 @@ export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({ onNavigateTa
 
       {/* Before / After Charts & Recommendations */}
       {simulationResult && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem' }}>
+        <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem' }}>
           {/* Before / After Chart */}
           <div className="control-card">
             <div style={{ marginBottom: '1rem' }}>

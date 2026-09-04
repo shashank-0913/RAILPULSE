@@ -135,6 +135,25 @@ export const LeafletRailwayMap: React.FC<LeafletRailwayMapProps> = ({
 
       layersGroupRef.current = L.layerGroup().addTo(map);
       mapInstanceRef.current = map;
+
+      // Safe window resize listener to redraw tiles cleanly on rotation or viewport resize
+      const handleResize = () => {
+        requestAnimationFrame(() => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        });
+      };
+
+      window.addEventListener('resize', handleResize);
+      const initTimer = setTimeout(handleResize, 250);
+
+      return () => {
+        clearTimeout(initTimer);
+        window.removeEventListener('resize', handleResize);
+        map.remove();
+        mapInstanceRef.current = null;
+      };
     }
   }, []);
 

@@ -318,7 +318,7 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
       </div>
 
       {/* Two Columns: Comparative Multi-Horizon Graph & Station Timeline */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Comparative Chart */}
         <div className="control-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>

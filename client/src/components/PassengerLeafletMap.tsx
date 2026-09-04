@@ -70,7 +70,21 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
     layersGroupRef.current = layersGroup;
     mapInstanceRef.current = map;
 
+    // Safe window resize listener to redraw tiles cleanly on rotation or viewport resize
+    const handleResize = () => {
+      requestAnimationFrame(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    const initTimer = setTimeout(handleResize, 250);
+
     return () => {
+      clearTimeout(initTimer);
+      window.removeEventListener('resize', handleResize);
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -390,8 +404,8 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
       {/* Floating Control Toolbar */}
       <div style={{
         position: 'absolute',
-        top: '12px',
-        right: '12px',
+        top: '10px',
+        right: '10px',
         display: 'flex',
         flexDirection: 'column',
         gap: '6px',
@@ -402,12 +416,14 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
           onClick={handleCenterTrain}
           className="btn-secondary"
           style={{
-            padding: '0.4rem 0.65rem',
+            padding: '0.45rem 0.75rem',
+            minHeight: '36px',
             fontSize: '0.75rem',
             background: 'var(--bg-surface)',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
             backdropFilter: 'blur(8px)',
-            gap: '0.4rem'
+            gap: '0.4rem',
+            borderRadius: '6px'
           }}
           title="Center map on live train position"
         >
@@ -420,12 +436,14 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
           onClick={handleZoomFullRoute}
           className="btn-secondary"
           style={{
-            padding: '0.4rem 0.65rem',
+            padding: '0.45rem 0.75rem',
+            minHeight: '36px',
             fontSize: '0.75rem',
             background: 'var(--bg-surface)',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
             backdropFilter: 'blur(8px)',
-            gap: '0.4rem'
+            gap: '0.4rem',
+            borderRadius: '6px'
           }}
           title="Fit full route in view"
         >
@@ -438,30 +456,33 @@ export const PassengerLeafletMap: React.FC<PassengerLeafletMapProps> = ({
       {liveLocation && (
         <div style={{
           position: 'absolute',
-          bottom: '12px',
-          left: '12px',
+          bottom: '10px',
+          left: '10px',
+          right: '10px',
+          maxWidth: 'calc(100% - 20px)',
           background: 'var(--bg-surface)',
           border: '1px solid var(--border-subtle)',
           borderRadius: '8px',
-          padding: '0.4rem 0.75rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          padding: '0.45rem 0.75rem',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
-          gap: '0.75rem',
-          fontSize: '0.75rem',
+          gap: '0.5rem',
+          fontSize: '0.725rem',
           zIndex: 500
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: liveLocation.dataSource === 'RAILRADAR' ? 'var(--color-green)' : 'var(--color-yellow)', fontWeight: 700 }}>
             <span className="radar-live-dot" style={{ background: liveLocation.dataSource === 'RAILRADAR' ? '#10b981' : '#f59e0b' }}></span>
             <span>{liveLocation.dataSource === 'RAILRADAR' ? 'RAILRADAR GPS LIVE' : 'SIMULATED GPS'}</span>
           </div>
-          <div style={{ color: 'var(--text-muted)' }}>|</div>
+          <div style={{ color: 'var(--text-muted)' }}>•</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-primary)' }}>
             <Gauge size={13} color="var(--color-cyan)" />
             <strong>{liveLocation.speed || 0} km/h</strong>
           </div>
-          <div style={{ color: 'var(--text-muted)' }}>|</div>
+          <div style={{ color: 'var(--text-muted)' }}>•</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-primary)' }}>
             <Navigation size={13} color="var(--color-green)" />
             <span>Next: <strong>{liveLocation.nextStation || 'Upcoming'}</strong></span>

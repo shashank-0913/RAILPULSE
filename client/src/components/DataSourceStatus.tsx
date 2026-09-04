@@ -127,13 +127,13 @@ export const DataSourceStatus: React.FC = () => {
               {/* Service Cards */}
               <div className="grid grid-cols-1 gap-3">
                 {/* RailRadar */}
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3.5">
                     <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                       <Radio className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-white text-sm">RailRadar Live Telemetry</span>
                         {getStatusBadge(status?.services.railradar.status || 'DEMO')}
                       </div>
@@ -144,13 +144,13 @@ export const DataSourceStatus: React.FC = () => {
                 </div>
 
                 {/* OpenWeather */}
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3.5">
                     <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
                       <CloudRain className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-white text-sm">OpenWeather API</span>
                         {getStatusBadge(status?.services.openweather.status || 'OFFLINE')}
                       </div>
@@ -161,13 +161,13 @@ export const DataSourceStatus: React.FC = () => {
                 </div>
 
                 {/* Database */}
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3.5">
                     <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       <Database className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-white text-sm">PostgreSQL / SQLAlchemy Storage</span>
                         {getStatusBadge(status?.services.database.status || 'SQLITE_FALLBACK')}
                       </div>
@@ -178,13 +178,13 @@ export const DataSourceStatus: React.FC = () => {
                 </div>
 
                 {/* ML Engine */}
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3.5">
                     <div className="p-2.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                       <Cpu className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-white text-sm">XGBoost ML ETA Model</span>
                         {getStatusBadge('READY')}
                       </div>
@@ -195,13 +195,13 @@ export const DataSourceStatus: React.FC = () => {
                 </div>
 
                 {/* WebSocket */}
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3.5">
                     <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
                       <Wifi className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-white text-sm">FastAPI WebSocket Stream</span>
                         {getStatusBadge('LIVE')}
                       </div>

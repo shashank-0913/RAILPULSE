@@ -687,7 +687,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
       </div>
 
       {/* SECTION 6 & 7: WHAT-IF COMPARISON TABLE & DELAY PROPAGATION */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
         
         {/* SECTION 6 — WHAT-IF COMPARISON */}
         <div className="card">

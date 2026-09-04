@@ -35,7 +35,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
       }} />
 
       {/* Top Navbar in Selection Portal */}
-      <div style={{
+      <div className="auth-top-nav-responsive" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -43,7 +43,9 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         zIndex: 10,
         maxWidth: '1200px',
         width: '100%',
-        margin: '0 auto 1.5rem auto'
+        margin: '0 auto 1.5rem auto',
+        flexWrap: 'wrap',
+        gap: '1rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{
@@ -54,12 +56,13 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)'
+            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)',
+            flexShrink: 0
           }}>
             <Radio size={22} color="#ffffff" className="animate-pulse" />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="font-heading" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                 RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
               </span>
@@ -73,7 +76,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -116,7 +119,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         </div>
 
         <h1 style={{
-          fontSize: '2.5rem',
+          fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
           fontWeight: 900,
           letterSpacing: '-0.03em',
           color: 'var(--text-primary)',
@@ -127,10 +130,10 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         </h1>
 
         <p style={{
-          fontSize: '1.05rem',
+          fontSize: 'clamp(0.875rem, 2vw, 1.05rem)',
           color: 'var(--text-secondary)',
           maxWidth: '680px',
-          marginBottom: '2.5rem',
+          marginBottom: '2rem',
           lineHeight: 1.5
         }}>
           Predictive dynamic arrival forecasting, root-cause delay explainability, network congestion heatmaps, and automated dispatch intelligence for Indian Railways.
@@ -139,8 +142,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         {/* 2 Big Role Selection Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '2rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.5rem',
           width: '100%',
           textAlign: 'left'
         }}>
@@ -355,7 +358,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div style={{
+      <div className="auth-footer-responsive" style={{
         textAlign: 'center',
         position: 'relative',
         zIndex: 10,
@@ -365,6 +368,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         borderTop: '1px solid var(--border-subtle)',
         paddingTop: '1rem',
         display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.75rem',
         justifyContent: 'space-between',
         alignItems: 'center',
         maxWidth: '1100px',

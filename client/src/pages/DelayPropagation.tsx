@@ -211,7 +211,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
       </div>
 
       {/* Two Columns: Network Cascade Graph & Time-to-Impact Progression Timeline */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* SVG Network Graph */}
         <div className="control-card" style={{ background: '#0a0f1d', padding: '1.25rem' }}>
           <div style={{ fontWeight: 700, fontSize: '1rem', color: '#f8fafc', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

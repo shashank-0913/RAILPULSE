@@ -290,7 +290,7 @@ export const LiveTrainTracking: React.FC<LiveTrainTrackingProps> = ({
       </div>
 
       {/* Main Map & Detail Split View */}
-      <div style={{ display: 'grid', gridTemplateColumns: activeTrain ? '1.5fr 1fr' : '1fr', gap: '1.5rem' }}>
+      <div className="dashboard-grid-main" style={{ display: 'grid', gridTemplateColumns: activeTrain ? '1.5fr 1fr' : '1fr', gap: '1.5rem' }}>
         {/* Map View (Leaflet or SVG Schematic) */}
         {mapViewMode === 'LEAFLET_OSM' ? (
           <LeafletRailwayMap
