@@ -138,7 +138,7 @@ export const ModelPerformance: React.FC = () => {
               Prediction Error Distribution (% of Total Runs)
             </h2>
             <p style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-              64.6% of all dynamic predictions fall within $\pm 2$ minutes of actual track arrival.
+              64.6% of all dynamic predictions fall within ±2 minutes of actual track arrival.
             </p>
           </div>
           <div style={{ height: '280px' }}>

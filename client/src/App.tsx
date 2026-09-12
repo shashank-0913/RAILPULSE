@@ -20,6 +20,7 @@ import { HistoricalAnalytics } from './pages/HistoricalAnalytics';
 import { AlertsCenter } from './pages/AlertsCenter';
 import { ModelPerformance } from './pages/ModelPerformance';
 import { ModelArchitecture } from './pages/ModelArchitecture';
+import { PassengerPortal } from './pages/PassengerPortal';
 
 import { VerifiedUser } from './types';
 import { api } from './services/api';
@@ -189,47 +190,70 @@ export const App: React.FC = () => {
             />
 
             <main className="main-content">
-              {activeTab === 'overview' && (
+              {(activeTab === 'overview' || activeTab === 'dashboard') && (
                 <OverviewDashboard onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'platform_traffic' && (
+              {(activeTab === 'platform_traffic' || activeTab === 'stations' || activeTab === 'platform') && (
                 <PlatformTrafficAutomation user={user} onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'tracking' && (
+              {(activeTab === 'tracking' || activeTab === 'tracking_map' || activeTab === 'live_map' || activeTab === 'map') && (
                 <LiveTrainTracking
                   selectedTrainId={selectedTrainId}
                   onNavigateTab={handleNavigateTab}
                 />
               )}
-              {activeTab === 'eta' && (
+              {(activeTab === 'eta' || activeTab === 'eta_intelligence') && (
                 <ETAIntelligence selectedTrainId={selectedTrainId} />
               )}
-              {activeTab === 'forecast' && (
+              {(activeTab === 'forecast' || activeTab === 'delay_insights' || activeTab === 'insights') && (
                 <DelayForecast selectedTrainId={selectedTrainId} />
               )}
-              {activeTab === 'congestion' && (
+              {(activeTab === 'congestion' || activeTab === 'network' || activeTab === 'network_monitoring') && (
                 <NetworkCongestion onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'propagation' && (
+              {(activeTab === 'propagation' || activeTab === 'delay_propagation') && (
                 <DelayPropagation onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'simulation' && (
+              {(activeTab === 'simulation' || activeTab === 'whatif' || activeTab === 'what_if') && (
                 <WhatIfSimulation onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'recommendations' && (
+              {(activeTab === 'recommendations' || activeTab === 'feedback' || activeTab === 'ai_recommendations') && (
                 <AIRecommendations user={user} />
               )}
-              {activeTab === 'performance' && (
+              {(activeTab === 'performance' || activeTab === 'model_performance') && (
                 <ModelPerformance />
               )}
-              {activeTab === 'analytics' && (
+              {(activeTab === 'analytics' || activeTab === 'historical_analytics') && (
                 <HistoricalAnalytics />
               )}
-              {activeTab === 'alerts' && (
+              {(activeTab === 'alerts' || activeTab === 'notifications' || activeTab === 'alert_center') && (
                 <AlertsCenter onNavigateTab={handleNavigateTab} />
               )}
-              {activeTab === 'model_docs' && (
+              {(activeTab === 'model_docs' || activeTab === 'architecture' || activeTab === 'docs') && (
                 <ModelArchitecture />
+              )}
+              {(activeTab === 'passenger' || activeTab === 'passenger_portal' || activeTab === 'pnr') && (
+                <PassengerPortal />
+              )}
+
+              {/* Fallback ensuring unknown tabs NEVER result in a blank page */}
+              {![
+                'overview', 'dashboard',
+                'platform_traffic', 'stations', 'platform',
+                'tracking', 'tracking_map', 'live_map', 'map',
+                'eta', 'eta_intelligence',
+                'forecast', 'delay_insights', 'insights',
+                'congestion', 'network', 'network_monitoring',
+                'propagation', 'delay_propagation',
+                'simulation', 'whatif', 'what_if',
+                'recommendations', 'feedback', 'ai_recommendations',
+                'performance', 'model_performance',
+                'analytics', 'historical_analytics',
+                'alerts', 'notifications', 'alert_center',
+                'model_docs', 'architecture', 'docs',
+                'passenger', 'passenger_portal', 'pnr'
+              ].includes(activeTab) && (
+                <OverviewDashboard onNavigateTab={handleNavigateTab} />
               )}
             </main>
           </div>

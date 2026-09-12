@@ -392,9 +392,22 @@ export const api = {
           passengerGender: 'Male'
         },
         trainTelemetry: {
-          currentDelayMin: 14,
+          id: '12864',
+          name: 'Howrah SF Express (SMVB - HWH)',
+          currentLocation: 'Between VSKP and VZM',
           speedKmH: 84,
-          statusText: 'Running (+14m)',
+          currentDelayMin: 14,
+          status: 'MODERATE_DELAY',
+          statusText: 'Running (+14m Delay)',
+          nextStation: 'VZM',
+          nextStationName: 'Vizianagaram Junction',
+          scheduledNextArrival: '18:30',
+          predictedNextArrival: '18:44',
+          predictionRange: '18:41 – 18:47',
+          scheduledDestArrival: '06:15',
+          predictedDestArrival: '06:34',
+          confidencePercent: 92.5,
+          delayReason: 'Section headway congestion & speed limits',
           lastUpdated: new Date().toLocaleTimeString()
         },
         stops: getUniversalJourneyPayload('12864').routeStations
