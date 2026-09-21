@@ -362,6 +362,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside className="desktop-sidebar-fixed" style={{
         width: '260px',
         background: 'var(--sidebar-bg)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         borderRight: '1px solid var(--border-subtle)',
         display: 'flex',
         flexDirection: 'column',

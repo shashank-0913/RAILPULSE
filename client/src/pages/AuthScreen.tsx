@@ -84,21 +84,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
     <div style={{
       minHeight: '100vh',
       width: '100vw',
-      background: 'radial-gradient(ellipse at 50% 15%, rgba(16, 185, 129, 0.14) 0%, var(--bg-surface) 60%, var(--bg-elevated) 100%)',
+      background: 'radial-gradient(ellipse at 50% 12%, rgba(0, 242, 254, 0.12) 0%, rgba(16, 185, 129, 0.08) 35%, var(--bg-base) 80%)',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      padding: '1.25rem 1rem',
+      padding: '1.5rem 1rem',
       position: 'relative',
       overflowX: 'hidden'
     }}>
-      {/* Background Decorative Track Grid */}
+      {/* Background Decorative Ambient Track Grid */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `linear-gradient(to right, var(--border-subtle) 1px, transparent 1px), linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px)`,
-        backgroundSize: '40px 40px',
-        opacity: 0.2,
+        backgroundSize: '48px 48px',
+        opacity: 0.35,
         pointerEvents: 'none'
       }} />
 
@@ -107,32 +107,32 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        maxWidth: '1200px',
+        maxWidth: '1240px',
         width: '100%',
         margin: '0 auto 1.5rem auto',
         position: 'relative',
         zIndex: 10
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <div style={{
-            width: '42px',
-            height: '42px',
+            width: '44px',
+            height: '44px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)',
+            background: 'linear-gradient(135deg, #00f2fe 0%, #10b981 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)',
+            boxShadow: '0 0 20px rgba(0, 242, 254, 0.45)',
             flexShrink: 0
           }}>
-            <Radio size={22} color="#ffffff" className="animate-pulse" />
+            <Radio size={24} color="#030712" strokeWidth={2.6} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span className="font-heading" style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
-                RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
+              <span className="font-heading gradient-rail-text" style={{ fontSize: '1.45rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
+                RAILPULSE
               </span>
-              <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
+              <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.55rem' }}>
                 SIH26028
               </span>
             </div>
@@ -146,11 +146,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           <div className="header-hide-on-tablet" style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            background: 'var(--bg-surface)',
+            gap: '0.45rem',
+            background: 'var(--bg-glass-elevated)',
+            backdropFilter: 'blur(12px)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: '20px',
-            padding: '0.35rem 0.85rem',
+            borderRadius: '9999px',
+            padding: '0.35rem 0.9rem',
             fontSize: '0.75rem',
             color: 'var(--text-secondary)'
           }}>
@@ -169,24 +170,23 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       </div>
 
       {/* Main Authentication Card */}
-      <div className="auth-card-responsive" style={{
-        maxWidth: '480px',
+      <div className="auth-card-responsive glass-card" style={{
+        maxWidth: '490px',
         width: '100%',
         margin: '0 auto',
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '16px',
-        padding: '2rem',
-        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.3)',
+        padding: '2.25rem 2rem',
+        boxShadow: 'var(--card-shadow-hover)',
         position: 'relative',
-        zIndex: 10
+        zIndex: 10,
+        borderRadius: '20px',
+        border: '1px solid var(--border-medium)'
       }}>
         {/* Auth Mode Tabs */}
         <div style={{
           display: 'flex',
-          background: 'var(--bg-elevated)',
-          padding: '0.25rem',
-          borderRadius: '10px',
+          background: 'var(--bg-panel-tertiary)',
+          padding: '0.3rem',
+          borderRadius: '12px',
           marginBottom: '1.5rem',
           border: '1px solid var(--border-subtle)'
         }}>
@@ -194,15 +194,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             onClick={() => { setAuthMode('LOGIN'); setErrorMsg(null); }}
             style={{
               flex: 1,
-              padding: '0.55rem',
-              borderRadius: '8px',
+              padding: '0.6rem',
+              borderRadius: '9px',
               border: 'none',
-              background: authMode === 'LOGIN' ? 'var(--color-green)' : 'transparent',
-              color: authMode === 'LOGIN' ? '#000' : 'var(--text-secondary)',
+              background: authMode === 'LOGIN' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent',
+              color: authMode === 'LOGIN' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.825rem',
               cursor: 'pointer',
-              transition: 'all 0.15s ease'
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: authMode === 'LOGIN' ? '0 2px 10px rgba(16, 185, 129, 0.4)' : 'none'
             }}
           >
             Passenger Login
@@ -211,15 +212,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             onClick={() => { setAuthMode('SIGNUP'); setErrorMsg(null); }}
             style={{
               flex: 1,
-              padding: '0.55rem',
-              borderRadius: '8px',
+              padding: '0.6rem',
+              borderRadius: '9px',
               border: 'none',
-              background: authMode === 'SIGNUP' ? 'var(--color-green)' : 'transparent',
-              color: authMode === 'SIGNUP' ? '#000' : 'var(--text-secondary)',
+              background: authMode === 'SIGNUP' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent',
+              color: authMode === 'SIGNUP' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.825rem',
               cursor: 'pointer',
-              transition: 'all 0.15s ease'
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: authMode === 'SIGNUP' ? '0 2px 10px rgba(16, 185, 129, 0.4)' : 'none'
             }}
           >
             New Sign Up
@@ -227,11 +229,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         </div>
 
         {/* Form Title & Subtitle */}
-        <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+        <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+          <h2 className="font-heading" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             {authMode === 'LOGIN' ? 'Welcome to RailPulse' : authMode === 'SIGNUP' ? 'Create Passenger Account' : 'Verify One-Time Password'}
           </h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: 1.45 }}>
             {authMode === 'LOGIN'
               ? 'Access live train tracking, dynamic ETA predictions & journey weather'
               : authMode === 'SIGNUP'
@@ -242,30 +244,31 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
         {errorMsg && (
           <div style={{
-            background: 'rgba(239, 68, 68, 0.12)',
-            border: '1px solid #ef4444',
-            borderRadius: '8px',
+            background: 'rgba(244, 63, 94, 0.14)',
+            border: '1px solid var(--color-red)',
+            borderRadius: '10px',
             padding: '0.65rem 0.85rem',
             marginBottom: '1rem',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            color: '#ef4444',
-            fontSize: '0.75rem'
+            color: 'var(--color-red)',
+            fontSize: '0.75rem',
+            fontWeight: 600
           }}>
             <AlertCircle size={16} />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           {authMode === 'SIGNUP' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                 Full Name
               </label>
               <div style={{ position: 'relative' }}>
-                <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+                <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '13px' }} />
                 <input
                   type="text"
                   required
@@ -275,10 +278,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.65rem 0.85rem 0.65rem 2.4rem',
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '8px',
-                    color: 'var(--text-primary)',
                     fontSize: '0.85rem'
                   }}
                 />
@@ -289,53 +288,51 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           {authMode !== 'OTP' ? (
             <>
               {/* Method Switcher */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                  {loginMethod === 'MOBILE' ? 'Mobile Number' : 'Email Address'}
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setLoginMethod(prev => prev === 'MOBILE' ? 'EMAIL' : 'MOBILE')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--color-cyan)',
-                    fontSize: '0.7rem',
-                    cursor: 'pointer',
-                    fontWeight: 600
-                  }}
-                >
-                  Use {loginMethod === 'MOBILE' ? 'Email instead' : 'Mobile Number instead'}
-                </button>
-              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                    {loginMethod === 'MOBILE' ? 'Mobile Number' : 'Email Address'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod(prev => prev === 'MOBILE' ? 'EMAIL' : 'MOBILE')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--accent-cyan)',
+                      fontSize: '0.7rem',
+                      cursor: 'pointer',
+                      fontWeight: 600
+                    }}
+                  >
+                    Use {loginMethod === 'MOBILE' ? 'Email instead' : 'Mobile Number instead'}
+                  </button>
+                </div>
 
-              <div style={{ position: 'relative' }}>
-                {loginMethod === 'MOBILE' ? (
-                  <Smartphone size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
-                ) : (
-                  <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
-                )}
-                <input
-                  type={loginMethod === 'MOBILE' ? 'tel' : 'email'}
-                  required
-                  placeholder={loginMethod === 'MOBILE' ? '10-digit mobile number' : 'name@example.com'}
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem 0.65rem 2.4rem',
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '8px',
-                    color: 'var(--text-primary)',
-                    fontSize: '0.85rem'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  {loginMethod === 'MOBILE' ? (
+                    <Smartphone size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '13px' }} />
+                  ) : (
+                    <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '13px' }} />
+                  )}
+                  <input
+                    type={loginMethod === 'MOBILE' ? 'tel' : 'email'}
+                    required
+                    placeholder={loginMethod === 'MOBILE' ? '10-digit mobile number' : 'name@example.com'}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 0.85rem 0.65rem 2.4rem',
+                      fontSize: '0.85rem'
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Password */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                   <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
                     Password
                   </label>
@@ -355,7 +352,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                   </button>
                 </div>
                 <div style={{ position: 'relative' }}>
-                  <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+                  <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '13px' }} />
                   <input
                     type="password"
                     required
@@ -365,10 +362,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     style={{
                       width: '100%',
                       padding: '0.65rem 0.85rem 0.65rem 2.4rem',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: '8px',
-                      color: 'var(--text-primary)',
                       fontSize: '0.85rem'
                     }}
                   />
@@ -377,11 +370,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             </>
           ) : (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                 6-Digit Verification Code
               </label>
               <div style={{ position: 'relative' }}>
-                <KeyRound size={16} color="var(--color-green)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+                <KeyRound size={16} color="var(--color-green)" style={{ position: 'absolute', left: '12px', top: '13px' }} />
                 <input
                   type="text"
                   maxLength={6}
@@ -392,22 +385,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.65rem 0.85rem 0.65rem 2.4rem',
-                    background: 'var(--bg-elevated)',
                     border: '1px solid var(--color-green)',
-                    borderRadius: '8px',
-                    color: 'var(--text-primary)',
                     fontSize: '1rem',
                     fontFamily: 'JetBrains Mono',
                     letterSpacing: '0.2em'
                   }}
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem', fontSize: '0.7rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.45rem', fontSize: '0.7rem' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Demo Code: any 6 digits</span>
                 <button
                   type="button"
                   onClick={() => setAuthMode('LOGIN')}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-cyan)', cursor: 'pointer', fontWeight: 600 }}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-cyan)', cursor: 'pointer', fontWeight: 600 }}
                 >
                   Back to Password Login
                 </button>
@@ -417,7 +407,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
           {/* Remember Me */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={rememberMe}
@@ -426,22 +416,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               />
               <span>Remember this session</span>
             </label>
-            <span style={{ color: 'var(--text-muted)' }}>Forgot password?</span>
+            <span style={{ color: 'var(--text-muted)', cursor: 'pointer' }}>Forgot password?</span>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
+            className="btn-emerald"
             style={{
-              padding: '0.75rem',
+              padding: '0.8rem',
               fontSize: '0.9rem',
               fontWeight: 800,
               width: '100%',
               justifyContent: 'center',
-              marginTop: '0.5rem',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+              marginTop: '0.5rem'
             }}
           >
             <span>{loading ? 'Authenticating...' : authMode === 'SIGNUP' ? 'Create Passenger Account &rarr;' : 'Enter Passenger Dashboard &rarr;'}</span>
@@ -454,10 +443,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             type="button"
             onClick={onQuickPassengerLogin}
             style={{
-              background: 'transparent',
-              border: '1px dashed var(--color-green)',
-              borderRadius: '8px',
-              padding: '0.6rem 1rem',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px dashed rgba(16, 185, 129, 0.5)',
+              borderRadius: '10px',
+              padding: '0.65rem 1rem',
               color: 'var(--color-green)',
               fontWeight: 700,
               fontSize: '0.8rem',
@@ -466,8 +455,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem'
+              gap: '0.5rem',
+              transition: 'all 0.2s ease'
             }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16, 185, 129, 0.16)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16, 185, 129, 0.08)')}
           >
             <Train size={16} />
             <span>Instant Passenger Demo Access (1-Click)</span>
@@ -475,23 +467,25 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         </div>
 
         {/* Controller Gate Link */}
-        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <div style={{ marginTop: '1.1rem', textAlign: 'center' }}>
           <button
             type="button"
             onClick={onOpenControllerGate}
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--text-muted)',
-              fontSize: '0.725rem',
+              color: 'var(--text-secondary)',
+              fontSize: '0.75rem',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              textDecoration: 'underline'
+              gap: '0.4rem',
+              transition: 'color 0.2s ease'
             }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-yellow)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
           >
-            <ShieldAlert size={14} color="#f59e0b" />
+            <ShieldAlert size={14} color="var(--color-yellow)" />
             <span>Railway Controller / Official Operator Portal &rarr;</span>
           </button>
         </div>
@@ -499,7 +493,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
       {/* Footer */}
       <div className="auth-footer-responsive" style={{
-        maxWidth: '1200px',
+        maxWidth: '1240px',
         width: '100%',
         margin: '1.5rem auto 0 auto',
         display: 'flex',

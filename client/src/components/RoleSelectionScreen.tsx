@@ -16,7 +16,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
     <div style={{
       minHeight: '100vh',
       width: '100vw',
-      background: 'radial-gradient(ellipse at 50% 20%, rgba(16, 185, 129, 0.12) 0%, var(--bg-surface) 60%, var(--bg-elevated) 100%)',
+      background: 'radial-gradient(ellipse at 50% 15%, rgba(0, 242, 254, 0.12) 0%, rgba(16, 185, 129, 0.08) 35%, var(--bg-base) 80%)',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
@@ -24,13 +24,13 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
       position: 'relative',
       overflowX: 'hidden'
     }}>
-      {/* Background Decorative Grid */}
+      {/* Background Decorative Ambient Grid */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `linear-gradient(to right, var(--border-subtle) 1px, transparent 1px), linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px)`,
-        backgroundSize: '40px 40px',
-        opacity: 0.25,
+        backgroundSize: '48px 48px',
+        opacity: 0.3,
         pointerEvents: 'none'
       }} />
 
@@ -41,32 +41,32 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         justifyContent: 'space-between',
         position: 'relative',
         zIndex: 10,
-        maxWidth: '1200px',
+        maxWidth: '1240px',
         width: '100%',
         margin: '0 auto 1.5rem auto',
         flexWrap: 'wrap',
         gap: '1rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <div style={{
-            width: '42px',
-            height: '42px',
+            width: '44px',
+            height: '44px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)',
+            background: 'linear-gradient(135deg, #00f2fe 0%, #10b981 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)',
+            boxShadow: '0 0 20px rgba(0, 242, 254, 0.45)',
             flexShrink: 0
           }}>
-            <Radio size={22} color="#ffffff" className="animate-pulse" />
+            <Radio size={24} color="#030712" strokeWidth={2.6} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span className="font-heading" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
-                RAIL<span style={{ color: 'var(--color-green)' }}>PULSE</span>
+              <span className="font-heading gradient-rail-text" style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
+                RAILPULSE
               </span>
-              <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
+              <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.55rem' }}>
                 SIH 2026 • SIH26028
               </span>
             </div>
@@ -80,11 +80,12 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            background: 'var(--bg-surface)',
+            gap: '0.45rem',
+            background: 'var(--bg-glass-elevated)',
+            backdropFilter: 'blur(12px)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: '20px',
-            padding: '0.35rem 0.85rem',
+            borderRadius: '9999px',
+            padding: '0.35rem 0.9rem',
             fontSize: '0.75rem',
             color: 'var(--text-secondary)'
           }}>
@@ -114,136 +115,112 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
         alignItems: 'center',
         textAlign: 'center'
       }}>
-        <div className="badge-status badge-ai-intel" style={{ marginBottom: '1rem', padding: '0.35rem 1rem', fontSize: '0.8rem', gap: '0.5rem' }}>
-          <Sparkles size={14} color="var(--color-cyan)" /> SELECT YOUR OPERATIONAL ROLE
+        <div className="badge-status badge-ai-intel" style={{ marginBottom: '1.25rem', padding: '0.4rem 1.15rem', fontSize: '0.825rem', gap: '0.5rem' }}>
+          <Sparkles size={15} color="var(--accent-cyan)" /> SELECT OPERATIONAL ROLE
         </div>
 
-        <h1 style={{
-          fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+        <h1 className="font-heading" style={{
+          fontSize: 'clamp(2rem, 4.5vw, 2.75rem)',
           fontWeight: 900,
           letterSpacing: '-0.03em',
           color: 'var(--text-primary)',
           marginBottom: '0.75rem',
           lineHeight: 1.15
         }}>
-          Welcome to <span style={{ color: 'var(--color-green)' }}>RailPulse AI</span>
+          Welcome to <span className="gradient-rail-text">RailPulse AI</span>
         </h1>
 
         <p style={{
-          fontSize: 'clamp(0.875rem, 2vw, 1.05rem)',
+          fontSize: 'clamp(0.9rem, 2vw, 1.05rem)',
           color: 'var(--text-secondary)',
-          maxWidth: '680px',
-          marginBottom: '2rem',
-          lineHeight: 1.5
+          maxWidth: '700px',
+          marginBottom: '2.5rem',
+          lineHeight: 1.6
         }}>
           Predictive dynamic arrival forecasting, root-cause delay explainability, network congestion heatmaps, and automated dispatch intelligence for Indian Railways.
         </p>
 
-        {/* 2 Big Role Selection Cards */}
+        {/* 2 Role Selection Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.75rem',
           width: '100%',
           textAlign: 'left'
         }}>
           {/* Card 1: PASSENGER */}
           <div
             onClick={() => onSelectRole('PASSENGER')}
-            className="control-card control-card-glow-cyan"
+            className="glass-card glass-card-interactive glass-glow-cyan"
             style={{
-              padding: '2rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: 'var(--card-bg)',
-              border: '2px solid rgba(6, 182, 212, 0.3)',
-              borderRadius: '20px',
+              padding: '2.25rem 2rem',
+              borderRadius: '22px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-6px)';
-              e.currentTarget.style.borderColor = 'var(--color-cyan)';
-              e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(6, 182, 212, 0.35)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.3)';
-              e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+              border: '1px solid rgba(0, 242, 254, 0.3)'
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                 <div style={{
-                  width: '54px',
-                  height: '54px',
+                  width: '56px',
+                  height: '56px',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.3) 100%)',
-                  border: '1px solid var(--color-cyan)',
+                  background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(56, 189, 248, 0.3) 100%)',
+                  border: '1px solid var(--accent-cyan)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'
+                  boxShadow: '0 0 20px rgba(0, 242, 254, 0.3)'
                 }}>
-                  <Users size={28} color="var(--color-cyan)" />
+                  <Users size={28} color="var(--accent-cyan)" />
                 </div>
-                <span style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  background: 'rgba(6, 182, 212, 0.15)',
-                  color: 'var(--color-cyan)',
-                  border: '1px solid rgba(6, 182, 212, 0.3)'
-                }}>
-                  PUBLIC ACCESS • NO LOGIN REQUIRED
+                <span className="badge-status badge-ai-intel" style={{ fontSize: '0.725rem', padding: '0.3rem 0.8rem' }}>
+                  PUBLIC ACCESS • NO LOGIN
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                Passenger
+              <h2 className="font-heading" style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+                Passenger Portal
               </h2>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-cyan)', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: '1rem' }}>
                 "Track your journey & dynamic ETA"
               </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.55 }}>
                 A streamlined, mobile-first journey companion answering: <em>Where is my train, when will I reach, and why is it delayed?</em>
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                  <Navigation size={16} color="var(--color-cyan)" />
-                  <span><strong>Dynamic AI ETA:</strong> Live station-by-station arrival forecasts</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                  <Navigation size={16} color="var(--accent-cyan)" />
+                  <span><strong>Dynamic AI ETA:</strong> Station-by-station arrival forecasts</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                  <Zap size={16} color="var(--color-cyan)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                  <Zap size={16} color="var(--accent-cyan)" />
                   <span><strong>"Why Am I Delayed?":</strong> Plain-English explainable factors</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                  <Activity size={16} color="var(--color-cyan)" />
-                  <span><strong>Single-Train Map:</strong> Isolated GPS telemetry & stop timeline</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                  <Activity size={16} color="var(--accent-cyan)" />
+                  <span><strong>Live GPS Radar:</strong> Real-time track speed & stop progression</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                  <Clock size={16} color="var(--color-cyan)" />
-                  <span><strong>Future Delay Forecast:</strong> +30m, +60m & destination arrival</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                  <Clock size={16} color="var(--accent-cyan)" />
+                  <span><strong>Offline PWA Engine:</strong> Cached trip manifests & delays</span>
                 </div>
               </div>
             </div>
 
             <button
               type="button"
-              className="btn-primary"
+              className="btn-cyan"
               style={{
                 width: '100%',
                 justifyContent: 'center',
-                padding: '0.9rem',
+                padding: '0.85rem',
                 fontSize: '0.95rem',
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',
-                borderColor: 'var(--color-cyan)'
+                fontWeight: 700
               }}
             >
               <span>Continue as Passenger</span>
@@ -254,36 +231,22 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
           {/* Card 2: RAILWAY CONTROLLER / OPERATOR */}
           <div
             onClick={() => onSelectRole('CONTROLLER')}
-            className="control-card control-card-glow-green"
+            className="glass-card glass-card-interactive glass-glow-emerald"
             style={{
-              padding: '2rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: 'var(--card-bg)',
-              border: '2px solid rgba(16, 185, 129, 0.35)',
-              borderRadius: '20px',
+              padding: '2.25rem 2rem',
+              borderRadius: '22px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-6px)';
-              e.currentTarget.style.borderColor = 'var(--color-green)';
-              e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(16, 185, 129, 0.35)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.35)';
-              e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+              border: '1px solid rgba(16, 185, 129, 0.35)'
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                 <div style={{
-                  width: '54px',
-                  height: '54px',
+                  width: '56px',
+                  height: '56px',
                   borderRadius: '16px',
                   background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.3) 100%)',
                   border: '1px solid var(--color-green)',
@@ -294,93 +257,79 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
                 }}>
                   <ShieldAlert size={28} color="var(--color-green)" />
                 </div>
-                <span style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  color: 'var(--color-green)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)'
-                }}>
-                  🔒 RESTRICTED • GOVT ID REQUIRED
+                <span className="badge-status badge-on-time" style={{ fontSize: '0.725rem', padding: '0.3rem 0.8rem' }}>
+                  OFFICIAL ACCESS • SECURE GATE
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                Railway Controller / Operator
+              <h2 className="font-heading" style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+                Section Controller
               </h2>
               <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-green)', marginBottom: '1rem' }}>
-                "Monitor & optimize the railway network"
+                "Network-wide dispatch & recovery sandbox"
               </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                A dense, high-frequency operations center answering: <em>What is happening across the network, what will cascade next, and what action recovers time?</em>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.55 }}>
+                A full-scale railway operational command center with real-time propagation graphs, sandbox what-if simulations, and precedence decision support.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                  <Layers size={16} color="var(--color-green)" />
-                  <span><strong>Network Overview HUD:</strong> Multi-train telemetry & corridor heatmaps</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--color-green)' }}>
-                  <AlertTriangle size={16} color="var(--color-green)" />
-                  <span><strong>Delay Propagation:</strong> Downstream ripple effects & knock-on trees</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--color-green)' }}>
-                  <Zap size={16} color="var(--color-green)" />
-                  <span><strong>What-If Simulator:</strong> Multi-scenario disruption & recovery models</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.825rem', color: 'var(--color-green)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
                   <ShieldCheck size={16} color="var(--color-green)" />
-                  <span><strong>AI Dispatch Recommendations:</strong> Human-in-the-loop action ledger</span>
+                  <span><strong>Aadhaar / PAN Security Gate:</strong> Strict biometric identity clearance</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--color-green)' }}>
+                  <Layers size={16} color="var(--color-green)" />
+                  <span><strong>Multi-Train Radar:</strong> Full corridor GIS tracking & speed profiles</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--color-green)' }}>
+                  <AlertTriangle size={16} color="var(--color-green)" />
+                  <span><strong>Propagation Ripple Graph:</strong> Downstream bottleneck prediction</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--color-green)' }}>
+                  <Sparkles size={16} color="var(--color-green)" />
+                  <span><strong>What-If Sandbox:</strong> Interactive delay simulation & resolution</span>
                 </div>
               </div>
             </div>
 
             <button
               type="button"
-              className="btn-primary"
+              className="btn-emerald"
               style={{
                 width: '100%',
                 justifyContent: 'center',
-                padding: '0.9rem',
+                padding: '0.85rem',
                 fontSize: '0.95rem',
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                borderColor: 'var(--color-green)'
+                fontWeight: 700
               }}
             >
-              <span>Access Control Room (Official Gate)</span>
+              <span>Authenticate & Enter Controller HUD</span>
               <ArrowRight size={18} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Footer Info */}
+      {/* Footer */}
       <div className="auth-footer-responsive" style={{
-        textAlign: 'center',
-        position: 'relative',
-        zIndex: 10,
-        fontSize: '0.775rem',
+        maxWidth: '1240px',
+        width: '100%',
+        margin: '2rem auto 0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        fontSize: '0.75rem',
         color: 'var(--text-muted)',
-        marginTop: '2rem',
         borderTop: '1px solid var(--border-subtle)',
         paddingTop: '1rem',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.75rem',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        maxWidth: '1100px',
-        width: '100%',
-        margin: '2rem auto 0 auto'
+        position: 'relative',
+        zIndex: 10
       }}>
-        <div>Smart India Hackathon 2026 • Problem Statement SIH26028</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span>RailRadar API Active</span>
+        <div>Smart India Hackathon 2026 • Problem Statement: SIH26028</div>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <span>Ministry of Railways</span>
           <span>•</span>
-          <span>XGBoost + LightGBM + Graph Neural Network</span>
+          <span>Centre for Railway Information Systems (CRIS)</span>
         </div>
       </div>
     </div>

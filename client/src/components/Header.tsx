@@ -156,6 +156,8 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header style={{
       background: 'var(--header-bg)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid var(--border-subtle)',
       padding: '0.75rem 1.5rem',
       display: 'flex',
