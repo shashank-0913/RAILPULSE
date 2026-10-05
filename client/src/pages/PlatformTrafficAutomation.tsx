@@ -49,7 +49,7 @@ export const PlatformTrafficAutomation: React.FC<PlatformTrafficAutomationProps>
 
   const fetchState = async (offset = 0) => {
     try {
-      const res = await api.getPlatformTrafficAutomation('KGP', offset);
+      const res = await api.getPlatformTrafficAutomation('VSKP', offset);
       if (res && res.success) {
         setData(res);
       }

@@ -11,9 +11,12 @@ Base = declarative_base()
 def get_database_engine():
     if settings.has_postgres:
         try:
-            logger.info("Connecting to PostgreSQL database: %s", settings.DATABASE_URL.split("@")[-1] if "@" in settings.DATABASE_URL else "configured")
+            db_url = settings.DATABASE_URL
+            if db_url.startswith("postgres://"):
+                db_url = db_url.replace("postgres://", "postgresql://", 1)
+            logger.info("Connecting to PostgreSQL database: %s", db_url.split("@")[-1] if "@" in db_url else "configured")
             engine = create_engine(
-                settings.DATABASE_URL,
+                db_url,
                 pool_size=10,
                 max_overflow=20,
                 pool_timeout=30,

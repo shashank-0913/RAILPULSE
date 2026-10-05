@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Network,
   AlertTriangle,
@@ -12,7 +12,9 @@ import {
   GitCommit,
   Clock,
   Timer,
-  Activity
+  Activity,
+  Radio,
+  Sparkles
 } from 'lucide-react';
 import { Train } from '../types';
 import { api } from '../services/api';
@@ -27,23 +29,107 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
   const [additionalDelay, setAdditionalDelay] = useState<number>(0);
   const [propagationData, setPropagationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const [isTickLoading, setIsTickLoading] = useState(false);
+
+  const wsRef = useRef<WebSocket | null>(null);
 
   const loadData = async (trainId: string, addDelay: number) => {
+    setLoading(true);
     try {
       const [trainsRes, propRes] = await Promise.all([
         api.getTrains(),
         api.getDelayPropagation(trainId, addDelay)
       ]);
       if (trainsRes.success) setTrains(trainsRes.trains);
-      if (propRes.success) setPropagationData(propRes);
+      if (propRes) {
+        setPropagationData(propRes);
+        setLastUpdated(Date.now());
+        setSecondsAgo(0);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // Seconds ago timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - lastUpdated) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lastUpdated]);
+
+  // Initial load and WebSocket subscription
   useEffect(() => {
     loadData(originTrainId, additionalDelay);
-  }, [originTrainId, additionalDelay]);
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/trains/${originTrainId}`;
+
+    let ws: WebSocket | null = null;
+    try {
+      ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => setWsConnected(true);
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.propagation) {
+            const prop = payload.propagation;
+            setPropagationData((prev: any) => ({
+              ...prev,
+              ...prop,
+              cascadeRisk: prop.overall_propagation_risk || prop.cascade_severity || 'HIGH',
+              affectedTrainsCount: prop.affected_trains?.length || 3,
+              timeToImpactFormatted: `${prop.time_to_impact_minutes || 17} minutes`,
+              impactTimeline: prop.time_to_impact_timeline?.map((item: any) => ({
+                timestamp: `+${item.minute}m`,
+                timeOffsetMin: item.minute,
+                status: item.minute === 0 ? 'ACTIVE_NOW' : (item.minute <= 17 ? 'PREDICTED_CRITICAL' : 'DOWNSTREAM_CASCADE'),
+                event: item.event,
+                description: `Propagation milestone at T+${item.minute} min`
+              })) || prev?.impactTimeline || []
+            }));
+            setLastUpdated(Date.now());
+            setSecondsAgo(0);
+          }
+        } catch (err) {
+          console.error('Error parsing train WS message in propagation', err);
+        }
+      };
+      ws.onerror = () => setWsConnected(false);
+      ws.onclose = () => setWsConnected(false);
+    } catch (err) {
+      setWsConnected(false);
+    }
+
+    const pollInterval = setInterval(() => {
+      loadData(originTrainId, additionalDelay);
+    }, 30000);
+
+    return () => {
+      clearInterval(pollInterval);
+      if (ws) ws.close();
+    };
+  }, [originTrainId]);
+
+  const handleTriggerTick = async () => {
+    setIsTickLoading(true);
+    try {
+      await api.triggerTelemetryTick();
+      await loadData(originTrainId, additionalDelay);
+    } finally {
+      setIsTickLoading(false);
+    }
+  };
+
+  const primaryDelay = propagationData?.primary_delay_minutes || 26;
+  const secondaryDelay = Math.round(primaryDelay * 0.65);
 
   return (
     <div className="page-wrapper">
@@ -61,7 +147,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
             <span className="badge-status badge-moderate-delay">KEY DIFFERENTIATOR</span>
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>•</span>
             <span style={{ fontSize: '0.75rem', color: '#8b5cf6', fontFamily: 'JetBrains Mono' }}>
-              Time-to-Impact & Cascade Graph Engine
+              Time-to-Impact & Cascade Graph Engine (Event Pipeline)
             </span>
           </div>
           <h1 className="font-heading" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -73,8 +159,39 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
           </p>
         </div>
 
-        {/* Origin Train Selector */}
+        {/* Origin Train Selector & Live Push Status */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Live WS Badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: wsConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+            border: `1px solid ${wsConnected ? '#10b981' : '#f59e0b'}`,
+            padding: '0.3rem 0.65rem',
+            borderRadius: '999px',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            color: wsConnected ? '#34d399' : '#fbbf24'
+          }}>
+            <Radio size={12} className={wsConnected ? 'animate-pulse' : ''} />
+            <span>{wsConnected ? 'LIVE PIPELINE' : 'POLLING 30s'}</span>
+          </div>
+
+          <div style={{ fontSize: '0.725rem', color: '#94a3b8', fontFamily: 'JetBrains Mono' }}>
+            Updated {secondsAgo}s ago
+          </div>
+
+          <button
+            onClick={handleTriggerTick}
+            disabled={isTickLoading}
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}
+          >
+            <RefreshCw size={12} className={isTickLoading ? 'animate-spin' : ''} />
+            <span>Simulate Tick</span>
+          </button>
+
           <select
             value={originTrainId}
             onChange={e => setOriginTrainId(e.target.value)}
@@ -98,7 +215,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
         </div>
       </div>
 
-      {/* Prominent Early-Warning Time-to-Impact Box (Prompt Section 13) */}
+      {/* Prominent Early-Warning Time-to-Impact Box */}
       <div style={{
         background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)',
         border: '1px solid #6366f1',
@@ -130,7 +247,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
               EARLY-WARNING CASCADE ADVISORY
             </div>
             <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc' }}>
-              Secondary Train #17240 may be affected in approx. <span style={{ color: '#fbbf24' }}>{propagationData?.timeToImpactFormatted || '17 minutes'}</span>
+              Secondary Train #17240 may be affected in approx. <span style={{ color: '#fbbf24' }}>{propagationData?.timeToImpactFormatted || `${propagationData?.time_to_impact_minutes || 17} minutes`}</span>
             </div>
             <div style={{ fontSize: '0.775rem', color: '#cbd5e1' }}>
               Action window available: Divert or stage hold before junction entry to eliminate 14 minutes cascading delay.
@@ -139,7 +256,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
         </div>
 
         <button
-          onClick={() => onNavigateTab('simulation')}
+          onClick={() => onNavigateTab('simulation', originTrainId)}
           className="btn-cyan"
           style={{ padding: '0.6rem 1.1rem', fontSize: '0.825rem' }}
         >
@@ -157,8 +274,8 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
       }}>
         {/* Cascade Risk Level */}
         <div className="control-card control-card-glow-red" style={{
-          background: propagationData?.cascadeRisk === 'CRITICAL' ? 'rgba(239, 68, 68, 0.12)' :
-                      propagationData?.cascadeRisk === 'HIGH' ? 'rgba(249, 115, 22, 0.12)' : 'rgba(16, 185, 129, 0.12)'
+          background: (propagationData?.cascadeRisk === 'CRITICAL' || propagationData?.overall_propagation_risk === 'HIGH') ? 'rgba(239, 68, 68, 0.12)' :
+                      (propagationData?.cascadeRisk === 'HIGH' || propagationData?.overall_propagation_risk === 'MEDIUM') ? 'rgba(249, 115, 22, 0.12)' : 'rgba(16, 185, 129, 0.12)'
         }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f87171' }}>CASCADE RISK LEVEL</div>
           <div style={{
@@ -166,13 +283,13 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
             fontWeight: 800,
             fontFamily: 'JetBrains Mono',
             margin: '0.3rem 0',
-            color: propagationData?.cascadeRisk === 'CRITICAL' ? '#ef4444' :
-                   propagationData?.cascadeRisk === 'HIGH' ? '#f97316' : '#10b981'
+            color: (propagationData?.cascadeRisk === 'CRITICAL' || propagationData?.overall_propagation_risk === 'HIGH') ? '#ef4444' :
+                   (propagationData?.cascadeRisk === 'HIGH' || propagationData?.overall_propagation_risk === 'MEDIUM') ? '#f97316' : '#10b981'
           }}>
-            {propagationData?.cascadeRisk || 'HIGH'}
+            {propagationData?.cascadeRisk || propagationData?.overall_propagation_risk || 'HIGH'}
           </div>
           <div style={{ fontSize: '0.725rem', color: '#cbd5e1' }}>
-            Probability: <strong>{propagationData?.probabilityPercent || 78}%</strong>
+            Probability: <strong>{propagationData?.probabilityPercent || 84}%</strong>
           </div>
         </div>
 
@@ -180,7 +297,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
         <div className="control-card">
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>AFFECTED TRAINS</div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f8fafc', fontFamily: 'JetBrains Mono', margin: '0.3rem 0' }}>
-            {propagationData?.affectedTrainsCount || 3} Trains
+            {propagationData?.affectedTrainsCount || propagationData?.affected_trains?.length || 3} Trains
           </div>
           <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
             Headway & Signal Block Holds
@@ -202,7 +319,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
         <div className="control-card">
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>AFFECTED STATIONS</div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'JetBrains Mono', margin: '0.3rem 0' }}>
-            {propagationData?.affectedStationsCount || 4} Stations
+            {propagationData?.affectedStationsCount || propagationData?.affected_stations?.length || 4} Stations
           </div>
           <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
             VZM, VSKP, CHE, DVD Junctions
@@ -234,7 +351,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
                 <rect width="90" height="70" rx="8" fill="#131c33" stroke="#ef4444" strokeWidth="2" />
                 <text x="45" y="24" textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="800" fontFamily="JetBrains Mono">Train #{originTrainId}</text>
                 <text x="45" y="42" textAnchor="middle" fill="#94a3b8" fontSize="8">Superfast Exp</text>
-                <text x="45" y="58" textAnchor="middle" fill="#ef4444" fontSize="11" fontWeight="800" fontFamily="JetBrains Mono">+12 min</text>
+                <text x="45" y="58" textAnchor="middle" fill="#ef4444" fontSize="11" fontWeight="800" fontFamily="JetBrains Mono">+{Math.round(primaryDelay)} min</text>
               </g>
 
               {/* Node 2: Section */}
@@ -263,7 +380,7 @@ export const DelayPropagation: React.FC<DelayPropagationProps> = ({ onNavigateTa
               <g transform="translate(590, 45)">
                 <rect width="115" height="50" rx="6" fill="#131c33" stroke="#ef4444" strokeWidth="2" />
                 <text x="57" y="20" textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="800" fontFamily="JetBrains Mono">Train #17240</text>
-                <text x="57" y="38" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="800" fontFamily="JetBrains Mono">+15 min (T-17m)</text>
+                <text x="57" y="38" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="800" fontFamily="JetBrains Mono">+{secondaryDelay} min (T-17m)</text>
               </g>
 
               {/* Node 6: Affected Train 18520 */}

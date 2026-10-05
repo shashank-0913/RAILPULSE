@@ -48,14 +48,10 @@ function getJSON(path) {
 async function verifyAllFastAPI() {
   console.log("=== COMPREHENSIVE FASTAPI & RAILRADAR SUITE TEST ===\n");
 
-  // 1. Auth Gate
-  const authValid = await postJSON('/api/auth/verify-id', {
-    idType: 'aadhaar',
-    idNumber: '9845 2314 7890',
-    fullName: 'Sh. Rajesh Kumar Verma',
-    role: 'Chief Section Controller'
-  });
-  console.log("[1] Auth Valid Official (Rajesh Kumar Verma):", authValid.status, authValid.data?.user?.fullName, `(${authValid.data?.user?.role})`);
+  // 1. Controller Auth & JWT Token Issuance
+  const demoAuth = await postJSON('/api/auth/controller/demo-login', {});
+  console.log("[1] Controller Demo Login (JWT Issued):", demoAuth.status, demoAuth.data?.user?.fullName, `(${demoAuth.data?.user?.role})`);
+  console.log("    JWT Token Present:", Boolean(demoAuth.data?.token));
 
   // 2. Train A (12864)
   const tA = await getJSON('/api/passenger/trains/12864/journey');

@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Optional, Dict, Any, List
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -27,10 +28,28 @@ FEATURE_NAMES = [
     "visibility"
 ]
 
-def generate_synthetic_railway_dataset(n_samples: int = 5000, random_state: int = 42) -> pd.DataFrame:
+FEATURE_LABEL_MAP = {
+    "section_congestion": "Congestion in the section ahead",
+    "current_delay": "Current initial delay",
+    "previous_station_delay": "Delay accumulated at previous station",
+    "historical_station_delay": "Historical station bottleneck",
+    "station_dwell_time": "Station passenger dwell buffer",
+    "distance_to_next_station": "Track distance to next station",
+    "distance_to_destination": "Remaining journey route distance",
+    "current_speed": "Current locomotive speed",
+    "historical_route_delay": "Historical route corridor delay trend",
+    "time_of_day": "Time-of-day peak traffic window",
+    "rainfall": "Heavy rainfall on track section",
+    "visibility": "Atmospheric track visibility",
+    "wind_speed": "Sectional crosswind speed",
+    "temperature": "Ambient track temperature",
+    "day_of_week": "Day-of-week schedule density"
+}
+
+def generate_synthetic_railway_dataset(n_samples: int = 6000, random_state: int = 42) -> pd.DataFrame:
     """
     Generates a realistic synthetic dataset benchmarked on Indian Railways operating characteristics.
-    Labeled as: DEMO / SYNTHETIC DATASET
+    Labeled as: Synthetic benchmark based on Indian Railways operating patterns
     """
     np.random.seed(random_state)
 
@@ -93,12 +112,17 @@ def generate_synthetic_railway_dataset(n_samples: int = 5000, random_state: int 
     
     return df
 
-def train_and_save_model(model_save_path: str = None):
+def train_and_save_model(model_save_path: str = None, extra_records_df: Optional[pd.DataFrame] = None):
+    import datetime
     if model_save_path is None:
         model_save_path = os.path.join(os.path.dirname(__file__), "eta_xgboost_model.joblib")
 
-    logger.info("Generating synthetic railway dataset (DEMO / SYNTHETIC DATASET)...")
+    logger.info("Generating synthetic railway dataset benchmark...")
     df = generate_synthetic_railway_dataset(n_samples=6000)
+
+    if extra_records_df is not None and not extra_records_df.empty:
+        logger.info("Appending %d live recorded arrival records for continual learning...", len(extra_records_df))
+        df = pd.concat([df, extra_records_df], ignore_index=True)
 
     X = df[FEATURE_NAMES]
     y = df["target_delay_minutes"]
@@ -117,32 +141,78 @@ def train_and_save_model(model_save_path: str = None):
     )
     model.fit(X_train, y_train)
 
-    # Predictions & Evaluation Metrics
+    # Predictions & Evaluation Metrics on Test Set
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     r2 = r2_score(y_test, y_pred)
 
-    # Feature Importance (Gain)
-    importance_dict = dict(zip(FEATURE_NAMES, model.feature_importances_.tolist()))
-    sorted_importances = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
+    abs_errors = np.abs(y_test - y_pred)
+    signed_residuals = y_test - y_pred
+
+    within_3_min = float(np.mean(abs_errors <= 3.0) * 100)
+    within_5_min = float(np.mean(abs_errors <= 5.0) * 100)
+    within_10_min = float(np.mean(abs_errors <= 10.0) * 100)
+
+    # 10th and 90th percentile errors for 80% prediction interval
+    residual_p10 = float(np.percentile(signed_residuals, 10))
+    residual_p90 = float(np.percentile(signed_residuals, 90))
+    residual_std = float(np.std(signed_residuals))
+
+    # Error distribution histogram binned breakdown
+    residual_distribution = [
+        {"range": "0-1 min", "percentage": round(float(np.mean(abs_errors <= 1.0) * 100), 1), "count": int(np.sum(abs_errors <= 1.0)), "color": "#10b981"},
+        {"range": "1-2 min", "percentage": round(float(np.mean((abs_errors > 1.0) & (abs_errors <= 2.0)) * 100), 1), "count": int(np.sum((abs_errors > 1.0) & (abs_errors <= 2.0))), "color": "#34d399"},
+        {"range": "2-3 min", "percentage": round(float(np.mean((abs_errors > 2.0) & (abs_errors <= 3.0)) * 100), 1), "count": int(np.sum((abs_errors > 2.0) & (abs_errors <= 3.0))), "color": "#38bdf8"},
+        {"range": "3-5 min", "percentage": round(float(np.mean((abs_errors > 3.0) & (abs_errors <= 5.0)) * 100), 1), "count": int(np.sum((abs_errors > 3.0) & (abs_errors <= 5.0))), "color": "#06b6d4"},
+        {"range": "5-10 min", "percentage": round(float(np.mean((abs_errors > 5.0) & (abs_errors <= 10.0)) * 100), 1), "count": int(np.sum((abs_errors > 5.0) & (abs_errors <= 10.0))), "color": "#f59e0b"},
+        {"range": ">10 min", "percentage": round(float(np.mean(abs_errors > 10.0) * 100), 1), "count": int(np.sum(abs_errors > 10.0)), "color": "#ef4444"}
+    ]
+
+    # Feature Importance (Gain) with human-friendly labels
+    raw_importances = model.feature_importances_.tolist()
+    feature_importances = []
+    for feat, imp in zip(FEATURE_NAMES, raw_importances):
+        feature_importances.append({
+            "feature": feat,
+            "label": FEATURE_LABEL_MAP.get(feat, feat.replace("_", " ").title()),
+            "importance": round(float(imp), 4),
+            "percentage": round(float(imp) * 100, 1)
+        })
+    feature_importances.sort(key=lambda x: x["importance"], reverse=True)
 
     metadata = {
         "model": model,
         "metrics": {
             "mae": round(float(mae), 3),
+            "maeMinutes": round(float(mae), 2),
             "rmse": round(float(rmse), 3),
+            "rmseMinutes": round(float(rmse), 2),
             "r2": round(float(r2), 4),
-            "test_samples": len(y_test),
-            "dataset_label": "DEMO / SYNTHETIC DATASET (Indian Railways Operational Benchmarks)"
+            "r2Score": round(float(r2), 3),
+            "within_3_min_percent": round(within_3_min, 1),
+            "within_5_min_percent": round(within_5_min, 1),
+            "within_10_min_percent": round(within_10_min, 1),
+            "within5MinutesPercent": round(within_5_min, 1),
+            "within10MinutesPercent": round(within_10_min, 1),
+            "residual_p10": round(residual_p10, 2),
+            "residual_p90": round(residual_p90, 2),
+            "residual_std": round(residual_std, 2),
+            "prediction_interval_label": "80% prediction interval",
+            "train_records": len(X_train),
+            "test_records": len(X_test),
+            "total_records": len(df),
+            "dataset_label": "Synthetic benchmark based on Indian Railways operating patterns",
+            "trained_at": datetime.datetime.utcnow().isoformat()
         },
-        "feature_importances": sorted_importances,
+        "residual_distribution": residual_distribution,
+        "feature_importances": feature_importances,
         "feature_names": FEATURE_NAMES,
-        "model_type": "XGBoost Regressor (Python Native)"
+        "model_type": "XGBoost Regressor v2.1 (Python Native)"
     }
 
     joblib.dump(metadata, model_save_path)
-    logger.info("Model saved to %s with MAE=%.3f, RMSE=%.3f, R2=%.4f", model_save_path, mae, rmse, r2)
+    logger.info("Model saved to %s (MAE=%.3f min, RMSE=%.3f min, R2=%.4f, ±5m=%.1f%%)", model_save_path, mae, rmse, r2, within_5_min)
     return metadata
 
 if __name__ == "__main__":

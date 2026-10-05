@@ -46,8 +46,32 @@ export const PassengerPortal: React.FC = () => {
       const res = await api.getPNRDetails(pnr.trim());
       if (res.success) {
         setPnrData(res.booking || null);
-        setTrainTelemetry(res.trainTelemetry || null);
-        setStops(res.stops || []);
+        
+        let tTel = res.trainTelemetry || null;
+        const trainStops = res.stops || [];
+        const upcoming = trainStops.find((s: any) => s.status === 'UPCOMING' || s.status === 'UPCOMING_NEXT') || trainStops[0];
+        
+        if (tTel) {
+          const tId = tTel.id || res.booking?.trainNumber || '12864';
+          const etaRes = await api.getTrainById(tId);
+          const topShap = etaRes.success ? etaRes.prediction?.featureAttributions?.[0] : null;
+          
+          tTel = {
+            ...tTel,
+            nextStation: upcoming?.code || upcoming?.stationCode || tTel.nextStation,
+            nextStationName: upcoming?.name || upcoming?.stationName || tTel.nextStationName,
+            scheduledNextArrival: upcoming?.scheduledArrival || upcoming?.scheduledArr || tTel.scheduledNextArrival,
+            predictedNextArrival: upcoming?.predictedArrival || upcoming?.predictedArr || etaRes.prediction?.predictedArrival || tTel.predictedNextArrival,
+            predictionRange: etaRes.prediction?.predictionRange || '09:31 – 09:37',
+            confidencePercent: etaRes.prediction?.confidencePercent || 94.5,
+            primaryReason: topShap?.feature || (tTel.currentDelayMin > 0 ? 'Section Congestion Ahead' : 'Running on Schedule'),
+            delayReason: topShap ? `${topShap.impactMin}: ${topShap.value || topShap.description}` : 'Mainline block clearance normal'
+          };
+        }
+        
+        setPnrData(res.booking || null);
+        setTrainTelemetry(tTel);
+        setStops(trainStops);
         
         // Cache offline manifest into localStorage
         try {
@@ -67,8 +91,20 @@ export const PassengerPortal: React.FC = () => {
   const handleSearchTrain = async (tNum = trainNumberInput) => {
     setLoading(true);
     try {
-      const res = await api.getTrainById(tNum.trim());
+      const [res, stopsRes] = await Promise.all([
+        api.getTrainById(tNum.trim()),
+        api.getTrainStops(tNum.trim())
+      ]);
+
       if (res.success && res.train) {
+        const topShap = res.prediction?.featureAttributions?.[0];
+        const trainStops = stopsRes.success && stopsRes.stops?.length > 0 ? stopsRes.stops : [];
+        const upcoming = trainStops.find((s: any) => s.status === 'UPCOMING' || s.status === 'UPCOMING_NEXT') || trainStops[0];
+        const nextStn = upcoming?.code || upcoming?.stationCode || res.train.nextStation || 'Next Station';
+        const nextStnName = upcoming?.name || upcoming?.stationName || res.train.nextStationName || 'Next Station';
+        const nextSchedArr = upcoming?.scheduledArrival || upcoming?.scheduledArr || res.train.scheduledNextArrival || '09:50';
+        const nextPredArr = upcoming?.predictedArrival || upcoming?.predictedArr || res.prediction?.predictedArrival || res.train.predictedNextArrival || '10:04';
+
         setTrainTelemetry({
           id: res.train.id || tNum,
           name: res.train.name || `Train #${tNum}`,
@@ -77,18 +113,18 @@ export const PassengerPortal: React.FC = () => {
           currentDelayMin: res.train.currentDelayMin || 0,
           status: res.train.status || 'ON_TIME',
           statusText: res.train.statusText || 'Running on Time',
-          nextStation: res.train.nextStation || 'Next Station',
-          nextStationName: res.train.nextStationName || 'Next Station',
-          scheduledNextArrival: res.train.scheduledNextArrival || '18:30',
-          predictedNextArrival: res.prediction?.predictedArrival || res.train.predictedNextArrival || '18:30',
-          predictionRange: res.prediction?.predictionRange || '18:28 – 18:34',
+          nextStation: nextStn,
+          nextStationName: nextStnName,
+          scheduledNextArrival: nextSchedArr,
+          predictedNextArrival: nextPredArr,
+          predictionRange: res.prediction?.predictionRange || '09:31 – 09:37',
           scheduledDestArrival: res.train.scheduledDestArrival || '06:00',
           predictedDestArrival: res.train.predictedDestArrival || '06:00',
           confidencePercent: res.prediction?.confidencePercent || res.train.confidencePercent || 94.5,
-          delayReason: res.train.currentDelayMin > 0 ? 'Section headway congestion in upcoming block' : 'Running on schedule'
+          primaryReason: topShap?.feature || (res.train.currentDelayMin > 0 ? 'Section Congestion Ahead' : 'Running on Schedule'),
+          delayReason: topShap ? `${topShap.impactMin}: ${topShap.value || topShap.description}` : 'Section signaling clear'
         });
-        const stopsRes = await api.getTrainStops(tNum.trim());
-        if (stopsRes.success && stopsRes.stops) setStops(stopsRes.stops);
+        setStops(trainStops);
       }
     } catch (e) {
       console.error('Error fetching train by id:', e);
@@ -210,7 +246,7 @@ export const PassengerPortal: React.FC = () => {
                 type="text"
                 value={trainNumberInput}
                 onChange={e => setTrainNumberInput(e.target.value)}
-                placeholder="Enter 5-digit Train # (e.g. 12864, 17240)..."
+                placeholder="Enter 5-digit Train # (e.g. 12864, 17240, 20833)..."
                 style={{
                   width: '100%',
                   background: 'var(--input-bg)',
@@ -266,7 +302,7 @@ export const PassengerPortal: React.FC = () => {
           {isOfflineMode ? <WifiOff size={22} color="var(--color-yellow)" /> : <Wifi size={22} color="var(--color-green)" />}
           <div>
             <div style={{ fontSize: '0.875rem', fontWeight: 700, color: isOfflineMode ? '#fbbf24' : 'var(--text-primary)' }}>
-              {isOfflineMode ? '📱 IN-TRAIN OFFLINE MODE: ACTIVE (ZERO SIGNAL COMPATIBLE)' : '🌐 ONLINE TELEMETRY MODE (LIVE CRIS GPS STREAM)'}
+              {isOfflineMode ? '📱 IN-TRAIN OFFLINE MODE: ACTIVE (ZERO SIGNAL COMPATIBLE)' : '🌐 ONLINE TELEMETRY MODE (RAILRADAR LIVE STREAM)'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               {isOfflineMode
@@ -351,9 +387,9 @@ export const PassengerPortal: React.FC = () => {
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Prediction Accuracy Confidence:</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
-                {trainTelemetry.confidencePercent ?? 92.5}%
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>80% Prediction Interval:</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
+                [{trainTelemetry.predictionRange || '18:21 – 18:27'}]
               </div>
             </div>
           </div>
@@ -376,7 +412,7 @@ export const PassengerPortal: React.FC = () => {
                 {trainTelemetry.predictedNextArrival || '18:44'}
               </div>
               <div style={{ fontSize: '0.725rem', color: 'var(--color-green)', fontWeight: 600 }}>
-                Delay: +{trainTelemetry.currentDelayMin ?? 0} min ({trainTelemetry.predictionRange || '±3 min'})
+                Delay: +{trainTelemetry.currentDelayMin ?? 0} min ([{trainTelemetry.predictionRange || '18:21 – 18:27'}])
               </div>
             </div>
 
@@ -393,12 +429,12 @@ export const PassengerPortal: React.FC = () => {
 
             {/* Reason */}
             <div style={{ background: 'var(--bg-panel-tertiary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>REASON FOR DELAY</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>REASON FOR DELAY (SHAP)</div>
               <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-orange)', margin: '0.25rem 0' }}>
-                {trainTelemetry.currentDelayMin > 0 ? 'Section Congestion Ahead' : 'Running on Schedule'}
+                {trainTelemetry.primaryReason || (trainTelemetry.currentDelayMin > 0 ? 'Section Congestion Ahead' : 'Running on Schedule')}
               </div>
               <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
-                {trainTelemetry.delayReason || 'Signal buffer clearance'}
+                {trainTelemetry.delayReason || 'Signal headway clearance'}
               </div>
             </div>
           </div>

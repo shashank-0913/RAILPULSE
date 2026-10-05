@@ -213,3 +213,27 @@ class SimulationRun(Base):
     started_at = Column(DateTime, default=datetime.datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+class PredictionLog(Base):
+    __tablename__ = "prediction_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    train_number = Column(String(20), index=True, nullable=False)
+    station_code = Column(String(20), index=True, nullable=False)
+    station_name = Column(String(100), nullable=True)
+    predicted_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    scheduled_arrival = Column(String(30), nullable=True)
+    predicted_eta = Column(String(30), nullable=False)
+    predicted_delay_minutes = Column(Float, default=0.0)
+    confidence_score = Column(Float, default=0.85)
+    eta_low = Column(String(30), nullable=True)
+    eta_high = Column(String(30), nullable=True)
+    actual_arrival = Column(String(30), nullable=True)
+    actual_delay_minutes = Column(Float, nullable=True)
+    error_min = Column(Float, nullable=True)
+    is_live = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    __table_args__ = (
+        Index("idx_pred_log_train_stn", "train_number", "station_code", "predicted_at"),
+    )

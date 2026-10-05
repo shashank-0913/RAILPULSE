@@ -26,7 +26,7 @@ _DECISION_HISTORY: List[Dict[str, Any]] = [
         "trainBName": "Telangana Express",
         "action": "USE PLATFORM 2",
         "decision": "ACCEPTED",
-        "controllerName": "Sh. Rajesh Kumar Verma",
+        "controllerName": "Demo Section Controller – Visakhapatnam",
         "role": "Chief Section Controller (Waltair Division)",
         "timestamp": "2026-09-04 17:15:30 IST",
         "status": "Advisory decision recorded",
@@ -37,13 +37,13 @@ _DECISION_HISTORY: List[Dict[str, Any]] = [
 
 class PlatformTrafficService:
     def __init__(self):
-        self.station_code = "KGP"
-        self.station_name = "Kharagpur Junction"
+        self.station_code = "VSKP"
+        self.station_name = "Visakhapatnam Junction"
 
     def _format_time(self, dt: datetime.datetime) -> str:
         return dt.strftime("%H:%M")
 
-    def get_platform_traffic_state(self, station_code: str = "KGP", sim_offset: int = 0) -> Dict[str, Any]:
+    def get_platform_traffic_state(self, station_code: str = "VSKP", sim_offset: int = 0) -> Dict[str, Any]:
         """
         Computes dynamic platform occupancy, upcoming conflicts, options, AI recommendations,
         comparison matrix, delay propagation, and visual timeline data.
@@ -372,6 +372,10 @@ class PlatformTrafficService:
             "success": True,
             "stationCode": self.station_code,
             "stationName": self.station_name,
+            "station": {
+                "code": self.station_code,
+                "name": self.station_name
+            },
             "currentTime": self._format_time(now),
             "status": status,
             "statusColor": status_color,

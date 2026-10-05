@@ -38,10 +38,13 @@ wheels/
 
 # Environment variables & secrets
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+*.env
+backend/.env
+backend/.env.*
+client/.env
+client/.env*
+client/.env.*
 
 # Logs
 *.log

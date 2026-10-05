@@ -386,20 +386,34 @@ class RailRadarService:
         cov_dist = float(cur_loc.get("distanceFromOriginKm") or 875.0)
         progress = round((cov_dist / total_dist) * 100, 1) if total_dist > 0 else 52.6
 
+        t_num = str(data.get("trainNumber") or train_number)
+        t_name = str(data.get("trainName") or train_info.get("name") or f"Express {train_number}")
+
         return {
-            "trainNumber": str(data.get("trainNumber") or train_number),
-            "trainName": str(data.get("trainName") or train_info.get("name") or f"Express {train_number}"),
+            "trainNumber": t_num,
+            "train_number": t_num,
+            "trainName": t_name,
+            "train_name": t_name,
             "latitude": round(lat, 6),
             "longitude": round(lng, 6),
             "speed": round(speed, 1),
+            "speed_kmh": round(speed, 1),
             "bearing": round(bearing, 1),
+            "bearing_deg": round(bearing, 1),
             "currentDelay": round(delay, 1),
+            "delay_minutes": round(delay, 1),
             "previousStation": prev_st,
+            "previous_station": prev_st,
             "currentStation": curr_st,
+            "current_station": curr_st,
             "nextStation": next_st,
+            "next_station": next_st,
             "segmentProgress": min(100.0, max(0.0, progress)),
+            "progress_percent": min(100.0, max(0.0, progress)),
             "dataSource": "RAILRADAR",
+            "data_source": "RAILRADAR",
             "isSimulated": False,
+            "is_simulated": False,
             "lastUpdated": data.get("lastUpdatedAt") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "raw_train": train_info
         }
@@ -413,21 +427,33 @@ class RailRadarService:
         lng = 83.3320 if is_12864 else 79.4800
         speed = 72.0 if is_12864 else 88.0
         delay = 42.0 if is_12864 else 8.0
+        t_name = "Howrah - SMVT Bengaluru SF Express" if is_12864 else f"Express Train {train_number}"
 
         return {
             "trainNumber": train_number,
-            "trainName": "Howrah - SMVT Bengaluru SF Express" if is_12864 else f"Express Train {train_number}",
+            "train_number": train_number,
+            "trainName": t_name,
+            "train_name": t_name,
             "latitude": lat,
             "longitude": lng,
             "speed": speed,
+            "speed_kmh": speed,
             "bearing": 215.0,
+            "bearing_deg": 215.0,
             "currentDelay": delay,
+            "delay_minutes": delay,
             "previousStation": "Baleshwar (BLS)" if is_12864 else "Ramagundam (RDM)",
+            "previous_station": "Baleshwar (BLS)" if is_12864 else "Ramagundam (RDM)",
             "currentStation": "Near Rajahmundry (RJY)" if is_12864 else "Sirpur Kaghaznagar (SKZR)",
+            "current_station": "Near Rajahmundry (RJY)" if is_12864 else "Sirpur Kaghaznagar (SKZR)",
             "nextStation": "Eluru (EE)" if is_12864 else "Balharshah (BPQ)",
+            "next_station": "Eluru (EE)" if is_12864 else "Balharshah (BPQ)",
             "segmentProgress": 68.0 if is_12864 else 35.0,
+            "progress_percent": 68.0 if is_12864 else 35.0,
             "dataSource": "SIMULATED",
+            "data_source": "SIMULATED",
             "isSimulated": True,
+            "is_simulated": True,
             "lastUpdated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
 

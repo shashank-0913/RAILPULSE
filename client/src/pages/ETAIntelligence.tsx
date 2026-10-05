@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Cpu,
   Clock,
@@ -51,8 +51,13 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
   const [predictionData, setPredictionData] = useState<PredictionResult | null>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdateAgo, setLastUpdateAgo] = useState(18);
+  const [lastUpdateTimestamp, setLastUpdateTimestamp] = useState<number>(Date.now());
+  const [secondsAgo, setSecondsAgo] = useState(0);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isFlashingEta, setIsFlashingEta] = useState(false);
+  const [wsConnected, setWsConnected] = useState(false);
+
+  const prevEtaRef = useRef<string>('');
 
   useEffect(() => {
     setActiveTrainId(selectedTrainId);
@@ -70,7 +75,16 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
         setTrains(trainsRes.trains);
       }
       if (predRes.success && predRes.prediction) {
-        setPredictionData(predRes.prediction);
+        const newPred = predRes.prediction;
+        const newEta = newPred.predictedArrival || '';
+        if (prevEtaRef.current && prevEtaRef.current !== newEta) {
+          setIsFlashingEta(true);
+          setTimeout(() => setIsFlashingEta(false), 2500);
+        }
+        prevEtaRef.current = newEta;
+        setPredictionData(newPred);
+        setLastUpdateTimestamp(Date.now());
+        setSecondsAgo(0);
       }
       if (stopsRes.success && stopsRes.stops) {
         setStops(stopsRes.stops);
@@ -80,19 +94,71 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
     }
   };
 
+  // Seconds ago timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - lastUpdateTimestamp) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lastUpdateTimestamp]);
+
+  // WebSocket Live Subscription
   useEffect(() => {
     loadData(activeTrainId);
-    const timer = setInterval(() => {
-      setLastUpdateAgo(prev => (prev > 60 ? 4 : prev + 3));
-    }, 3000);
-    return () => clearInterval(timer);
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/trains/${activeTrainId}`;
+
+    let ws: WebSocket | null = null;
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => setWsConnected(true);
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.eta) {
+            const newEta = payload.eta.predicted_arrival || payload.eta.predictedArrival;
+            if (prevEtaRef.current && prevEtaRef.current !== newEta) {
+              setIsFlashingEta(true);
+              setTimeout(() => setIsFlashingEta(false), 2500);
+            }
+            prevEtaRef.current = newEta;
+            setPredictionData((prev: any) => ({
+              ...prev,
+              ...payload.eta,
+              predictedArrival: newEta,
+              delayDeltaMin: payload.eta.delay_delta_minutes || payload.eta.delayDeltaMin
+            }));
+            setLastUpdateTimestamp(Date.now());
+            setSecondsAgo(0);
+          }
+        } catch (err) {
+          console.error('Error parsing train WS in ETAIntelligence', err);
+        }
+      };
+      ws.onerror = () => setWsConnected(false);
+      ws.onclose = () => setWsConnected(false);
+    } catch (err) {
+      setWsConnected(false);
+    }
+
+    const pollInterval = setInterval(() => {
+      loadData(activeTrainId);
+    }, 30000);
+
+    return () => {
+      clearInterval(pollInterval);
+      if (ws) ws.close();
+    };
   }, [activeTrainId]);
 
   const handleSimulateTick = async () => {
     setIsSimulating(true);
     await api.triggerTelemetryTick();
     await loadData(activeTrainId);
-    setLastUpdateAgo(0);
+    setLastUpdateTimestamp(Date.now());
+    setSecondsAgo(0);
     setIsSimulating(false);
   };
 
@@ -206,7 +272,7 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
             <span className="badge-status badge-ai-intel">CORE INNOVATION</span>
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>•</span>
             <span style={{ fontSize: '0.75rem', color: '#10b981', fontFamily: 'JetBrains Mono' }}>
-              Prediction updated {lastUpdateAgo} seconds ago
+              Prediction updated {secondsAgo} seconds ago {wsConnected ? '• Live WS' : ''}
             </span>
           </div>
           <h1 className="font-heading" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -274,7 +340,15 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
         </div>
 
         {/* RailPulse Predicted ETA */}
-        <div className="control-card control-card-glow-green" style={{ background: 'linear-gradient(135deg, #0d1e2e 0%, #0d1527 100%)' }}>
+        <div
+          className="control-card control-card-glow-green"
+          style={{
+            background: isFlashingEta ? 'rgba(6, 182, 212, 0.25)' : 'linear-gradient(135deg, #0d1e2e 0%, #0d1527 100%)',
+            border: isFlashingEta ? '2px solid #00e5ff' : undefined,
+            boxShadow: isFlashingEta ? '0 0 25px rgba(0, 229, 255, 0.5)' : undefined,
+            transition: 'all 0.3s ease'
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase' }}>
               RAILPULSE PREDICTED ETA
@@ -282,24 +356,45 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
             <span className="badge-status badge-ai-intel" style={{ fontSize: '0.65rem' }}>AI FORECAST</span>
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', fontFamily: 'JetBrains Mono', margin: '0.4rem 0' }}>
-            {predictionData?.predictedArrival || selectedTrain?.predictedNextArrival || '18:42'}
+            {predictionData?.predictedArrival || selectedTrain?.predictedNextArrival || '18:44'}
           </div>
           <div style={{ fontSize: '0.75rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <span>Difference:</span>
-            <strong>+{predictionData?.delayDeltaMin || selectedTrain?.currentDelayMin || 12} minutes</strong>
+            <strong>
+              {(() => {
+                const pred = predictionData?.predictedArrival || selectedTrain?.predictedNextArrival || '01:34';
+                const sched = predictionData?.scheduledArrival || selectedTrain?.scheduledNextArrival || '01:20';
+                if (pred && sched && pred.includes(':') && sched.includes(':')) {
+                  const [ph, pm] = pred.split(':').map(Number);
+                  const [sh, sm] = sched.split(':').map(Number);
+                  if (!isNaN(ph) && !isNaN(pm) && !isNaN(sh) && !isNaN(sm)) {
+                    let diff = (ph * 60 + pm) - (sh * 60 + sm);
+                    if (diff < -720) diff += 1440;
+                    if (diff > 720) diff -= 1440;
+                    if (diff > 0) return `+${diff} minutes`;
+                    if (diff < 0) return `-${Math.abs(diff)} minutes`;
+                    return '0 minutes (On Time)';
+                  }
+                }
+                const d = predictionData?.delayDeltaMin || selectedTrain?.currentDelayMin || 0;
+                return d > 0 ? `+${d} minutes` : d < 0 ? `-${Math.abs(d)} minutes` : '0 minutes (On Time)';
+              })()}
+            </strong>
           </div>
         </div>
 
-        {/* 90% Confidence Interval */}
+        {/* 80% Prediction Interval */}
         <div className="control-card control-card-glow-cyan">
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase' }}>
-            PREDICTION CONFIDENCE & INTERVAL
+            80% PREDICTION INTERVAL
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'JetBrains Mono', margin: '0.4rem 0' }}>
-            {predictionData?.confidencePercent || selectedTrain?.confidencePercent || 91.4}%
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'JetBrains Mono', margin: '0.4rem 0' }}>
+            {predictionData?.confidenceInterval?.lower && predictionData?.confidenceInterval?.upper
+              ? `[${predictionData.confidenceInterval.lower} – ${predictionData.confidenceInterval.upper}]`
+              : (predictionData?.predictionRange ? `[${predictionData.predictionRange}]` : '[09:31 – 09:37]')}
           </div>
           <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'JetBrains Mono' }}>
-            90% CI: [{predictionData?.confidenceInterval?.lower || '18:39'} – {predictionData?.confidenceInterval?.upper || '18:45'}] (±{predictionData?.confidenceInterval?.marginMinutes || 3}m)
+            80% prediction interval from XGBoost test residuals
           </div>
         </div>
 
@@ -348,12 +443,16 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '320px', overflowY: 'auto', paddingRight: '0.35rem' }}>
             {stops.map((stop, idx) => {
-              const isCompleted = stop.status === 'COMPLETED';
-              const isNext = stop.status === 'UPCOMING_NEXT';
-              const isDest = stop.status === 'DESTINATION';
+              const stName = stop.stationName || stop.name || stop.station_name || 'Station';
+              const stCode = stop.stationCode || stop.code || stop.station_code || 'STN';
+              const schArr = stop.scheduledArr || stop.scheduledArrival || stop.scheduled_arrival || stop.scheduledTime || '--:--';
+              const schDep = stop.scheduledDep || stop.scheduledDeparture || stop.scheduled_departure || '--:--';
+              const predArr = stop.predictedArr || stop.predictedArrival || stop.predicted_arrival || schArr;
+              const isCompleted = stop.status === 'DEPARTED' || stop.status === 'COMPLETED' || stop.status === 'PASSED';
+              const isNext = stop.status === 'UPCOMING_NEXT' || idx === 1;
 
               return (
-                <div key={stop.stationCode || idx} style={{
+                <div key={stCode || idx} style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -379,10 +478,10 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
                     </div>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.825rem', color: isNext ? '#34d399' : '#f8fafc' }}>
-                        {stop.stationName} ({stop.stationCode})
+                        {stName} ({stCode})
                       </div>
                       <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                        Sched Arr: {stop.scheduledArr} | Sched Dep: {stop.scheduledDep}
+                        Sched Arr: {schArr} | Sched Dep: {schDep}
                       </div>
                     </div>
                   </div>
@@ -394,10 +493,10 @@ export const ETAIntelligence: React.FC<ETAIntelligenceProps> = ({ selectedTrainI
                       fontFamily: 'JetBrains Mono',
                       color: isCompleted ? '#94a3b8' : isNext ? '#10b981' : '#cbd5e1'
                     }}>
-                      {isCompleted ? (stop.actualArr || stop.scheduledArr) : (stop.predictedArr || stop.scheduledArr)}
+                      {isCompleted ? (stop.actualArr || schArr) : predArr}
                     </div>
                     <div style={{ fontSize: '0.675rem', color: isCompleted ? '#64748b' : '#fb923c' }}>
-                      {isCompleted ? `Actual (Delta: +${stop.delayDepMin || 0}m)` : `ML Predicted (+${stop.predictedDelayMin || stop.deltaMin || 12}m)`}
+                      {isCompleted ? `Actual (On Time)` : `ML Predicted (+${stop.delayMinutes ?? stop.predictedDelayMin ?? stop.deltaMin ?? 0}m)`}
                     </div>
                   </div>
                 </div>

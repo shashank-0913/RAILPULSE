@@ -1445,32 +1445,47 @@ export const PassengerDashboard: React.FC<PassengerDashboardProps> = ({
         {/* SUBTAB 2: WHY IS MY TRAIN DELAYED (SHAP) */}
         {activeSubTab === 'why_delayed' && (
           <div className="card tab-content-enter">
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.65rem' }}>
-              🤖 PLAIN-ENGLISH AI DELAY EXPLAINABILITY
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                🤖 PLAIN-ENGLISH AI DELAY EXPLAINABILITY (SHAP)
+              </h3>
+              <span className="badge-status badge-ai-intel">Real-Time TreeExplainer</span>
+            </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Translates complex gradient-boosted decision tree features into plain-English root causes for passengers.
+              {journeyData?.explainability?.summary || 'XGBoost regression attribution identifying primary operational factors causing departure or arrival variance.'}
             </p>
 
             <div className="shap-cards-grid">
-              <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b' }}>FREIGHT CROSSING PREEMPTION</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-                  Delayed by +18m at Rajahmundry junction due to prior scheduled goods rake crossing.
-                </div>
-              </div>
-              <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#38bdf8' }}>TRACK CAUTION ORDER (PSR)</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-                  Speed restriction of 30 km/h over 4.2 km track maintenance zone added +12m delay.
-                </div>
-              </div>
-              <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>SPEED RECOVERY SCHEDULED</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-                  Expected to recover 8 minutes over next 110 km clear section.
-                </div>
-              </div>
+              {(journeyData?.explainability?.factors || [
+                { feature: 'Congestion in the section ahead', impactMinutes: 3.8, value: '68% capacity', description: 'Section track density causing headway delay' },
+                { feature: 'Current initial delay', impactMinutes: Math.round(currentDelay * 0.45 * 10) / 10, value: `${currentDelay}m`, description: 'Upstream accumulated delay propagation' },
+                { feature: 'Current locomotive speed', impactMinutes: speed >= 70 ? -2.1 : 2.5, value: `${speed} km/h`, description: speed >= 70 ? 'High cruising speed recovering delay' : 'Low cruising speed increasing delay' }
+              ]).map((feat: any, idx: number) => {
+                const impact = typeof feat.impactMinutes === 'number' ? feat.impactMinutes : parseFloat(feat.impactMinutes || '0');
+                const isDelayIncrease = impact >= 0;
+                const borderCol = isDelayIncrease ? '#f59e0b' : '#10b981';
+
+                return (
+                  <div key={idx} style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '8px', borderLeft: `3px solid ${borderCol}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: borderCol, textTransform: 'uppercase' }}>
+                        {feat.feature || feat.label || 'Operational Factor'}
+                      </div>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, fontFamily: 'JetBrains Mono', color: borderCol }}>
+                        {impact >= 0 ? `+${impact.toFixed(1)}m` : `${impact.toFixed(1)}m`}
+                      </span>
+                    </div>
+                    {feat.value && (
+                      <div style={{ fontSize: '0.725rem', color: 'var(--color-cyan)', fontFamily: 'JetBrains Mono', marginTop: '0.25rem' }}>
+                        Observed: {feat.value}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+                      {feat.description || (isDelayIncrease ? 'Operational delay increase' : 'Dynamic speed recovery')}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

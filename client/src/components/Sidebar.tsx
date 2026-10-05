@@ -17,8 +17,11 @@ import {
   GitMerge,
   X,
   Radio,
-  Activity
+  Activity,
+  ExternalLink,
+  Tv
 } from 'lucide-react';
+import { api, DOCS_URL } from '../services/api';
 
 interface SidebarProps {
   activeTab: string;
@@ -35,9 +38,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile
 }) => {
+  const [modelAccuracy, setModelAccuracy] = React.useState<string>('96.6%');
+
+  React.useEffect(() => {
+    let isMounted = true;
+    api.getModelMetrics().then(res => {
+      if (isMounted && res.success && res.benchmark_metrics) {
+        const pct = res.benchmark_metrics.within_5_min_percent;
+        if (pct) setModelAccuracy(`${pct.toFixed(1)}%`);
+      }
+    }).catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
+
   // Primary Navigation matching the reference UI directly
   const primaryNavItems = [
     { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, aliases: ['overview', 'dashboard'] },
+    { id: 'board', label: 'Station Display Board', icon: Tv, badge: 'Live Board', aliases: ['board', 'station_board', 'station_display'] },
     { id: 'tracking', label: 'Track Train', icon: TrainTrack, aliases: ['tracking'] },
     { id: 'tracking_map', label: 'Live Map', icon: Map, mappedTab: 'tracking', aliases: ['tracking_map', 'live_map', 'map'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, aliases: ['analytics', 'historical_analytics'] },
@@ -53,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'simulation', label: 'What-If Simulator', icon: Sliders, badge: 'Sandbox', aliases: ['simulation', 'whatif', 'what_if'] },
     { id: 'eta', label: 'ETA Intelligence', icon: Activity, badge: 'XGBoost', aliases: ['eta', 'eta_intelligence'] },
     { id: 'congestion', label: 'Network Congestion', icon: GitMerge, aliases: ['congestion', 'network', 'network_monitoring'] },
-    { id: 'performance', label: 'Model Performance', icon: Award, badge: '96.3%', aliases: ['performance', 'model_performance'] }
+    { id: 'performance', label: 'Model Performance', icon: Award, badge: modelAccuracy, aliases: ['performance', 'model_performance'] }
   ];
 
   // Secondary Portals
@@ -303,6 +320,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </div>
+      </div>
+
+      {/* API Documentation Link */}
+      <div style={{ padding: '0 0.75rem 0.5rem 0.75rem' }}>
+        <a
+          href={DOCS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.55rem 0.8rem',
+            borderRadius: '10px',
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            color: 'var(--color-green)',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FileCode2 size={15} />
+            <span>View API Docs</span>
+          </div>
+          <ExternalLink size={13} />
+        </a>
       </div>
 
       {/* Bottom Sidebar Indian Railways Visual Treatment */}

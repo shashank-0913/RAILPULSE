@@ -64,7 +64,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="font-heading gradient-rail-text" style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
-                RAILPULSE
+                RailPulse
               </span>
               <span className="badge-status badge-ai-intel" style={{ fontSize: '0.7rem', padding: '0.15rem 0.55rem' }}>
                 SIH 2026 • SIH26028
@@ -275,7 +275,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
                   <ShieldCheck size={16} color="var(--color-green)" />
-                  <span><strong>Aadhaar / PAN Security Gate:</strong> Strict biometric identity clearance</span>
+                  <span><strong>2FA OTP & Signed JWT:</strong> Verified railway controller session</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.85rem', color: 'var(--color-green)' }}>
                   <Layers size={16} color="var(--color-green)" />

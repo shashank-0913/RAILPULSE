@@ -252,6 +252,64 @@ export const ALL_INDIAN_RAILWAYS_TRAINS: IRTrainMetadata[] = [
     ],
     coordinates: [[88.3426, 22.5838], [87.3278, 22.3361], [85.8830, 20.4625], [85.8436, 20.2666], [85.6260, 20.1824], [85.8312, 19.8135]]
   },
+  {
+    number: '12864',
+    name: 'Howrah - SMVT Bengaluru SF Express',
+    source: 'Howrah Junction',
+    sourceCode: 'HWH',
+    dest: 'SMVT Bengaluru',
+    destCode: 'SMVB',
+    type: 'SUPERFAST',
+    zone: 'SER',
+    runningDays: 'Daily',
+    totalDistanceKm: 1944,
+    stations: [
+      { code: 'HWH', name: 'Howrah Junction', lat: 22.5838, lng: 88.3426, scheduledArrival: '19:55', scheduledDeparture: '19:55', platform: '19', distanceKm: 0, status: 'DEPARTED' },
+      { code: 'KGP', name: 'Kharagpur Junction', lat: 22.3361, lng: 87.3278, scheduledArrival: '21:30', scheduledDeparture: '21:35', platform: '1', distanceKm: 115, status: 'DEPARTED' },
+      { code: 'BLS', name: 'Baleshwar', lat: 21.4934, lng: 86.9328, scheduledArrival: '22:58', scheduledDeparture: '23:00', platform: '2', distanceKm: 231, status: 'DEPARTED' },
+      { code: 'CTC', name: 'Cuttack Junction', lat: 20.4625, lng: 85.8830, scheduledArrival: '01:05', scheduledDeparture: '01:10', platform: '3', distanceKm: 409, status: 'DEPARTED' },
+      { code: 'BBS', name: 'Bhubaneswar', lat: 20.2666, lng: 85.8436, scheduledArrival: '01:45', scheduledDeparture: '01:50', platform: '4', distanceKm: 437, status: 'DEPARTED' },
+      { code: 'KUR', name: 'Khurda Road Junction', lat: 20.1824, lng: 85.6260, scheduledArrival: '02:10', scheduledDeparture: '02:30', platform: '4', distanceKm: 456, status: 'DEPARTED' },
+      { code: 'BAM', name: 'Brahmapur', lat: 19.3149, lng: 84.7941, scheduledArrival: '03:55', scheduledDeparture: '04:00', platform: '2', distanceKm: 603, status: 'DEPARTED' },
+      { code: 'PSA', name: 'Palasa', lat: 18.7753, lng: 84.4172, scheduledArrival: '05:25', scheduledDeparture: '05:27', platform: '2', distanceKm: 677, status: 'DEPARTED' },
+      { code: 'CHE', name: 'Srikakulam Road', lat: 18.2984, lng: 83.8961, scheduledArrival: '06:23', scheduledDeparture: '06:25', platform: '3', distanceKm: 750, status: 'DEPARTED' },
+      { code: 'VZM', name: 'Vizianagaram Junction', lat: 18.1067, lng: 83.3956, scheduledArrival: '07:15', scheduledDeparture: '07:20', platform: '3', distanceKm: 820, status: 'DEPARTED' },
+      { code: 'VSKP', name: 'Visakhapatnam Junction', lat: 17.7215, lng: 83.2986, scheduledArrival: '09:00', scheduledDeparture: '09:20', platform: '1', distanceKm: 881, status: 'PASSED', delayMinutes: 14, predictedArrival: '09:34' },
+      { code: 'DVD', name: 'Duvvada', lat: 17.6983, lng: 83.1595, scheduledArrival: '09:50', scheduledDeparture: '09:52', platform: '1', distanceKm: 898, status: 'UPCOMING', delayMinutes: 14, predictedArrival: '10:04' },
+      { code: 'RJY', name: 'Rajahmundry', lat: 17.0005, lng: 81.7774, scheduledArrival: '12:13', scheduledDeparture: '12:15', platform: '1', distanceKm: 1081, status: 'UPCOMING', delayMinutes: 12, predictedArrival: '12:25' },
+      { code: 'TDD', name: 'Tadepalligudem', lat: 16.8126, lng: 81.5284, scheduledArrival: '13:03', scheduledDeparture: '13:05', platform: '3', distanceKm: 1123, status: 'UPCOMING', delayMinutes: 10, predictedArrival: '13:13' },
+      { code: 'EE', name: 'Eluru', lat: 16.7107, lng: 81.0952, scheduledArrival: '13:38', scheduledDeparture: '13:40', platform: '3', distanceKm: 1171, status: 'UPCOMING', delayMinutes: 8, predictedArrival: '13:46' },
+      { code: 'BZA', name: 'Vijayawada Junction', lat: 16.5062, lng: 80.6480, scheduledArrival: '15:10', scheduledDeparture: '15:20', platform: '7', distanceKm: 1230, status: 'UPCOMING', delayMinutes: 6, predictedArrival: '15:16' },
+      { code: 'RU', name: 'Renigunta Junction', lat: 13.6288, lng: 79.4862, scheduledArrival: '21:20', scheduledDeparture: '21:25', platform: '1', distanceKm: 1607, status: 'UPCOMING', delayMinutes: 4, predictedArrival: '21:24' },
+      { code: 'KPD', name: 'Katpadi Junction', lat: 12.9719, lng: 79.1325, scheduledArrival: '23:25', scheduledDeparture: '23:30', platform: '1', distanceKm: 1732, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '23:27' },
+      { code: 'SMVB', name: 'SMVT Bengaluru', lat: 12.9930, lng: 77.6510, scheduledArrival: '06:45', scheduledDeparture: '--:--', platform: '1', distanceKm: 1944, status: 'UPCOMING', delayMinutes: 0, predictedArrival: '06:45' }
+    ],
+    coordinates: [[88.3426, 22.5838], [87.3278, 22.3361], [86.9328, 21.4934], [85.8830, 20.4625], [85.8436, 20.2666], [85.6260, 20.1824], [84.7941, 19.3149], [84.4172, 18.7753], [83.8961, 18.2984], [83.3956, 18.1067], [83.2986, 17.7215], [83.1595, 17.6983], [81.7774, 17.0005], [81.5284, 16.8126], [81.0952, 16.7107], [80.6480, 16.5062], [79.4862, 13.6288], [79.1325, 12.9719], [77.6510, 12.9930]]
+  },
+  {
+    number: '17240',
+    name: 'Simhadri Daily Express',
+    source: 'Guntur Junction',
+    sourceCode: 'GNT',
+    dest: 'Visakhapatnam Junction',
+    destCode: 'VSKP',
+    type: 'EXPRESS',
+    zone: 'SCR',
+    runningDays: 'Daily',
+    totalDistanceKm: 382,
+    stations: [
+      { code: 'GNT', name: 'Guntur Junction', lat: 16.3067, lng: 80.4365, scheduledArrival: '05:00', scheduledDeparture: '05:00', platform: '3', distanceKm: 0, status: 'DEPARTED' },
+      { code: 'BZA', name: 'Vijayawada Junction', lat: 16.5062, lng: 80.6480, scheduledArrival: '06:05', scheduledDeparture: '06:15', platform: '5', distanceKm: 32, status: 'DEPARTED' },
+      { code: 'EE', name: 'Eluru', lat: 16.7107, lng: 81.0952, scheduledArrival: '07:13', scheduledDeparture: '07:15', platform: '2', distanceKm: 92, status: 'DEPARTED' },
+      { code: 'TDD', name: 'Tadepalligudem', lat: 16.8126, lng: 81.5284, scheduledArrival: '07:53', scheduledDeparture: '07:55', platform: '2', distanceKm: 139, status: 'DEPARTED' },
+      { code: 'RJY', name: 'Rajahmundry', lat: 17.0005, lng: 81.7774, scheduledArrival: '08:48', scheduledDeparture: '08:50', platform: '3', distanceKm: 181, status: 'PASSED', delayMinutes: 2, predictedArrival: '08:50' },
+      { code: 'SLO', name: 'Samalkot Junction', lat: 17.0500, lng: 82.1714, scheduledArrival: '09:38', scheduledDeparture: '09:40', platform: '1', distanceKm: 231, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '09:40' },
+      { code: 'AKP', name: 'Anakapalle', lat: 17.6913, lng: 83.0039, scheduledArrival: '11:43', scheduledDeparture: '11:45', platform: '3', distanceKm: 348, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '11:45' },
+      { code: 'DVD', name: 'Duvvada', lat: 17.6983, lng: 83.1595, scheduledArrival: '12:33', scheduledDeparture: '12:35', platform: '4', distanceKm: 364, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '12:35' },
+      { code: 'VSKP', name: 'Visakhapatnam Junction', lat: 17.7215, lng: 83.2986, scheduledArrival: '13:30', scheduledDeparture: '--:--', platform: '4', distanceKm: 382, status: 'UPCOMING', delayMinutes: 2, predictedArrival: '13:32' }
+    ],
+    coordinates: [[80.4365, 16.3067], [80.6480, 16.5062], [81.0952, 16.7107], [81.5284, 16.8126], [81.7774, 17.0005], [82.1714, 17.0500], [83.0039, 17.6913], [83.1595, 17.6983], [83.2986, 17.7215]]
+  },
 
   // --- 2. PREMIER RAJDHANI EXPRESS FLEET ---
   {

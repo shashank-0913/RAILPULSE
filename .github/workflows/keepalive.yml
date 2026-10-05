@@ -1,0 +1,27 @@
+name: RailPulse Render Backend Keepalive
+
+on:
+  schedule:
+    # Runs every 10 minutes (cron syntax)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-backend:
+    name: Ping Render /api/health Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping RailPulse Health Endpoint
+        env:
+          RENDER_URL: ${{ secrets.RENDER_BACKEND_URL || 'https://railpulse-backend.onrender.com' }}
+        run: |
+          TARGET_URL="${RENDER_URL%/}/api/health"
+          echo "Pinging health endpoint: $TARGET_URL"
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" "$TARGET_URL" || true)
+          echo "$RESPONSE"
+          STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ RailPulse FastAPI backend is awake and healthy."
+          else
+            echo "⚠️ Health check returned status $STATUS (or server is booting)."
+          fi

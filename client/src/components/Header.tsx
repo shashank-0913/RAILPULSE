@@ -151,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
     : 'PG';
 
   const userDisplayName = user?.fullName ? user.fullName.split(' ')[0] : 'Pavan';
-  const userTeamName = user?.role || 'Team RailPulse';
+  const userTeamName = user?.role ? `${user.role} • Visakhapatnam (Pilot)` : 'Visakhapatnam (Pilot)';
 
   return (
     <header style={{
@@ -281,7 +281,7 @@ export const Header: React.FC<HeaderProps> = ({
           color: 'var(--color-green)'
         }}>
           <span className="radar-live-dot" />
-          <span>Live Data</span>
+          <span>RailRadar Live</span>
         </div>
 
         {/* Live Date and Time */}
@@ -311,11 +311,19 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={onStartDemo}
-          className="btn-primary header-hide-on-tablet"
-          style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+          className="btn-primary"
+          style={{
+            fontSize: '0.75rem',
+            padding: '0.4rem 0.85rem',
+            background: 'linear-gradient(135deg, #0284c7 0%, #00D9FF 100%)',
+            color: '#06111F',
+            fontWeight: 800,
+            boxShadow: '0 0 14px rgba(0, 217, 255, 0.4)'
+          }}
+          title="Start interactive 7-step guided evaluator walkthrough"
         >
-          <Play size={13} fill="#ffffff" />
-          <span>SIH Demo</span>
+          <Play size={13} fill="#06111F" color="#06111F" />
+          <span>Guided Demo</span>
         </button>
 
         {/* Notifications Bell */}

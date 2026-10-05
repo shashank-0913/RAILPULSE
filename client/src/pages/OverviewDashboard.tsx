@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   TrainTrack,
   CheckCircle2,
@@ -39,6 +39,7 @@ import {
 } from 'chart.js';
 import { Train, Section, SystemAlert } from '../types';
 import { api } from '../services/api';
+import { getUniversalJourneyPayload } from '../services/indianRailwaysData';
 
 ChartJS.register(
   CategoryScale,
@@ -60,11 +61,12 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
   const [sections, setSections] = useState<Section[]>([]);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
   const [summary, setSummary] = useState<any>({});
+  const [modelAccuracy, setModelAccuracy] = useState<string>('96.6%');
   const [loading, setLoading] = useState(true);
 
   // Train tracking search state
   const [searchMode, setSearchMode] = useState<'NUMBER' | 'NAME'>('NUMBER');
-  const [searchInput, setSearchInput] = useState('12284');
+  const [searchInput, setSearchInput] = useState('20833');
   const [selectedTrain, setSelectedTrain] = useState<any>(null);
 
   // Map layer state
@@ -76,19 +78,21 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
   const fetchData = async () => {
     try {
-      const [trainsRes, networkRes, alertsRes] = await Promise.all([
+      const [trainsRes, networkRes, alertsRes, metricsRes] = await Promise.all([
         api.getTrains(),
         api.getNetworkCongestion(),
-        api.getAlerts()
+        api.getAlerts(),
+        api.getModelMetrics()
       ]);
 
       if (trainsRes.success) {
         setTrains(trainsRes.trains);
         setSummary(trainsRes.summary || {});
 
-        // Match searched train or fallback to 12284 / first train
+        // Match searched train or fallback to 20833 (Vande Bharat) / 12864 / first train
         const found = trainsRes.trains.find((t: Train) => t.id === searchInput) ||
-          trainsRes.trains.find((t: Train) => t.id === '12284') ||
+          trainsRes.trains.find((t: Train) => t.id === '20833') ||
+          trainsRes.trains.find((t: Train) => t.id === '12864') ||
           trainsRes.trains[0];
 
         setSelectedTrain(found);
@@ -98,6 +102,9 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
       }
       if (alertsRes.success) {
         setAlerts(alertsRes.alerts);
+      }
+      if (metricsRes.success && metricsRes.benchmark_metrics) {
+        setModelAccuracy(`${metricsRes.benchmark_metrics.within_5_min_percent.toFixed(1)}%`);
       }
     } finally {
       setLoading(false);
@@ -128,20 +135,31 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
     }
   };
 
-  // Custom Train Route Waypoints for Map (Ernakulam to Hazrat Nizamuddin)
-  const routeWaypoints: { name: string; code: string; lat: number; lng: number; status: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'DESTINATION' }[] = [
-    { name: 'Kottayam', code: 'KTY', lat: 9.5916, lng: 76.5222, status: 'COMPLETED' },
-    { name: 'Ernakulam', code: 'ERS', lat: 9.9816, lng: 76.2999, status: 'CURRENT' },
-    { name: 'Thrissur', code: 'TCR', lat: 10.5276, lng: 76.2144, status: 'UPCOMING' },
-    { name: 'Palakkad', code: 'PGT', lat: 10.7867, lng: 76.6548, status: 'UPCOMING' },
-    { name: 'Coimbatore', code: 'CBE', lat: 11.0168, lng: 76.9558, status: 'UPCOMING' },
-    { name: 'Erode', code: 'ED', lat: 11.3410, lng: 77.7172, status: 'UPCOMING' },
-    { name: 'Bengaluru', code: 'SBC', lat: 12.9716, lng: 77.5946, status: 'UPCOMING' },
-    { name: 'Vijayawada', code: 'BZA', lat: 16.5062, lng: 80.6480, status: 'UPCOMING' },
-    { name: 'Nagpur', code: 'NGP', lat: 21.1458, lng: 79.0882, status: 'UPCOMING' },
-    { name: 'Bhopal', code: 'BPL', lat: 23.2599, lng: 77.4126, status: 'UPCOMING' },
-    { name: 'Hazrat Nizamuddin', code: 'NZM', lat: 28.5892, lng: 77.2528, status: 'DESTINATION' }
-  ];
+  // Dynamic Journey Payload from the selected train
+  const journeyPayload = useMemo(() => {
+    const trainId = selectedTrain?.id || searchInput || '20833';
+    return getUniversalJourneyPayload(trainId);
+  }, [selectedTrain, searchInput]);
+
+  // Route Waypoints for Map based on selected train
+  const routeWaypoints = useMemo(() => {
+    const stations = journeyPayload.routeStations || [];
+    const len = stations.length;
+    const midIdx = Math.floor(len / 2);
+    return stations.map((st: any, idx: number) => {
+      let status: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'DESTINATION' = 'UPCOMING';
+      if (idx === 0) status = 'COMPLETED';
+      else if (idx === midIdx) status = 'CURRENT';
+      else if (idx === len - 1) status = 'DESTINATION';
+      return {
+        name: st.name,
+        code: st.code,
+        lat: st.lat,
+        lng: st.lng,
+        status
+      };
+    });
+  }, [journeyPayload]);
 
   // Initialize & Update Leaflet Map
   useEffect(() => {
@@ -149,8 +167,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [19.5, 78.5],
-        zoom: 5,
+        center: [journeyPayload.latitude || 17.7215, journeyPayload.longitude || 83.2986],
+        zoom: 6,
         zoomControl: false,
         attributionControl: false
       });
@@ -158,10 +176,11 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
       // Add Zoom Control at bottom right
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Dark Matter Map Tiles
+      // Dark Matter Map Tiles (Key-free)
       const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        subdomains: 'abcd'
+        subdomains: 'abcd',
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(map);
 
       tileLayerRef.current = tileLayer;
@@ -178,22 +197,32 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
       } else if (mapLayer === 'HYBRID') {
         newUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
       }
-      tileLayerRef.current = L.tileLayer(newUrl, { maxZoom: 18 }).addTo(mapInstanceRef.current);
+      tileLayerRef.current = L.tileLayer(newUrl, {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mapInstanceRef.current);
     }
 
-    // Draw Route Polyline & Custom Pins
-    if (markersGroupRef.current && mapInstanceRef.current) {
+    // Draw Route Polyline & Custom Pins for selected train
+    if (markersGroupRef.current && mapInstanceRef.current && routeWaypoints.length > 0) {
       markersGroupRef.current.clearLayers();
 
       const polylineCoords = routeWaypoints.map(w => [w.lat, w.lng] as [number, number]);
 
       // Route Polyline with subtle cyan glow
-      L.polyline(polylineCoords, {
+      const polyline = L.polyline(polylineCoords, {
         color: '#38bdf8',
         weight: 3.5,
         opacity: 0.85,
         dashArray: undefined
       }).addTo(markersGroupRef.current);
+
+      // Fit map bounds to show route
+      try {
+        mapInstanceRef.current.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+      } catch (e) {
+        mapInstanceRef.current.setView([journeyPayload.latitude || 17.7215, journeyPayload.longitude || 83.2986], 6);
+      }
 
       // Add Markers
       routeWaypoints.forEach(w => {
@@ -251,7 +280,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
         });
       });
     }
-  }, [mapLayer]);
+  }, [mapLayer, routeWaypoints, journeyPayload]);
 
   // Delay Insights Line Chart Configuration
   const delayChartData = {
@@ -324,23 +353,55 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
     }
   };
 
-  // Next 5 stops data for table
-  const nextStops = [
-    { station: 'Ernakulam (ERS)', scheduled: '10:57 AM', predicted: '11:02 AM', actual: '-', delay: '+5 min', isDelay: true },
-    { station: 'Thrissur (TCR)', scheduled: '12:40 PM', predicted: '12:45 PM', actual: '-', delay: '+5 min', isDelay: true },
-    { station: 'Palakkad (PGT)', scheduled: '02:20 PM', predicted: '02:30 PM', actual: '-', delay: '+10 min', isDelay: true },
-    { station: 'Coimbatore (CBE)', scheduled: '05:10 PM', predicted: '05:15 PM', actual: '-', delay: '+5 min', isDelay: true },
-    { station: 'Erode (ED)', scheduled: '06:45 PM', predicted: '06:55 PM', actual: '-', delay: '+10 min', isDelay: true }
-  ];
+  // Dynamic Next stops data for table based on selected train
+  const nextStops = useMemo(() => {
+    const stations = journeyPayload.routeStations || [];
+    return stations.slice(0, 5).map((st: any) => ({
+      station: `${st.name} (${st.code})`,
+      scheduled: st.scheduledArrival || '10:00 AM',
+      predicted: st.predictedArrival || st.scheduledArrival || '10:05 AM',
+      actual: st.status === 'DEPARTED' ? (st.scheduledArrival || '-') : '-',
+      delay: st.delayMinutes > 0 ? `+${st.delayMinutes} min` : 'On Time',
+      isDelay: st.delayMinutes > 0
+    }));
+  }, [journeyPayload]);
 
-  // Journey timeline stops
-  const timelineStops = [
-    { name: 'Kottayam (KTY)', time: 'Departed at 10:20 AM', status: 'Departed', badgeType: 'green', platform: 'PF 1' },
-    { name: 'Ernakulam (ERS)', time: 'ETA 11:02 AM', status: '38 min', badgeType: 'blue', platform: 'PF 6' },
-    { name: 'Thrisur (TCR)', time: 'ETA 12:45 PM', status: 'On Time', badgeType: 'green', platform: 'PF 3' },
-    { name: 'Palakkad (PGT)', time: 'ETA 02:30 PM', status: 'On Time', badgeType: 'green', platform: 'PF 2' },
-    { name: 'Coimbatore (CBE)', time: 'ETA 05:15 PM', status: 'On Time', badgeType: 'green', platform: 'PF 4' }
-  ];
+  // Dynamic Journey timeline stops
+  const timelineStops = useMemo(() => {
+    const stations = journeyPayload.routeStations || [];
+    return stations.slice(0, 5).map((st: any, idx: number) => ({
+      name: `${st.name} (${st.code})`,
+      time: st.status === 'DEPARTED' ? `Departed at ${st.scheduledDeparture || '08:00'}` : `ETA ${st.predictedArrival || st.scheduledArrival}`,
+      status: st.status === 'DEPARTED' ? 'Departed' : st.delayMinutes > 0 ? `+${st.delayMinutes}m` : 'On Time',
+      badgeType: st.status === 'DEPARTED' ? 'green' : st.delayMinutes > 0 ? 'orange' : 'blue',
+      platform: `PF ${st.platform || (idx + 1)}`
+    }));
+  }, [journeyPayload]);
+
+  // Dynamic Journey Duration calculation
+  const journeyDuration = useMemo(() => {
+    const stations = journeyPayload.routeStations || [];
+    if (stations.length >= 2) {
+      const first = stations[0].scheduledDeparture || stations[0].scheduledArrival;
+      const last = stations[stations.length - 1].scheduledArrival;
+      if (first && last && first.includes(':') && last.includes(':')) {
+        const [fh, fm] = first.split(':').map(Number);
+        const [lh, lm] = last.split(':').map(Number);
+        let diffMin = (lh * 60 + lm) - (fh * 60 + fm);
+        if (diffMin < 0) diffMin += 24 * 60;
+        if (journeyPayload.totalDistanceKm > 1500) {
+          diffMin += 24 * 60;
+        }
+        const h = Math.floor(diffMin / 60);
+        const m = diffMin % 60;
+        return `~ ${h}h ${m > 0 ? `${m}m` : ''}`;
+      }
+    }
+    const avgSpeed = 80;
+    const hours = Math.floor(journeyPayload.totalDistanceKm / avgSpeed);
+    const mins = Math.round(((journeyPayload.totalDistanceKm % avgSpeed) / avgSpeed) * 60);
+    return `~ ${hours}h ${mins}m`;
+  }, [journeyPayload]);
 
   return (
     <div className="page-wrapper">
@@ -449,10 +510,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
-                13,523
+                {summary.totalTrains ?? trains.length}
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                Trains Tracked Live
+                Corridor Trains Loaded
               </div>
             </div>
           </div>
@@ -474,15 +535,15 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
-                96.3%
+                {modelAccuracy}
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                ETA Prediction Accuracy
+                Model Accuracy (±5 min)
               </div>
             </div>
           </div>
 
-          {/* Happy Passengers / Monitored Journeys */}
+          {/* On-Time Running Trains */}
           <div className="control-card" style={{ padding: '0.85rem 1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div style={{
               width: '38px',
@@ -499,10 +560,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
-                7.4M+
+                {summary.onTimeTrains ?? trains.filter(t => (t.currentDelayMin || 0) <= 5).length} / {trains.length || 8}
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                Happy Passengers
+                On-Time Trains Live
               </div>
             </div>
           </div>
@@ -636,14 +697,14 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
-                      {selectedTrain?.id || '12284'}
+                      #{journeyPayload.trainNumber || selectedTrain?.id || '20833'}
                     </span>
-                    <span className="badge-status badge-on-time" style={{ fontSize: '0.65rem' }}>
+                    <span className={`badge-status ${selectedTrain?.currentDelayMin > 0 ? 'badge-moderate-delay' : 'badge-on-time'}`} style={{ fontSize: '0.65rem' }}>
                       {selectedTrain?.currentDelayMin > 0 ? `+${selectedTrain.currentDelayMin}m Delay` : 'On Time'}
                     </span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                    {selectedTrain?.name || 'Ernakulam - Nizamuddin Duronto Express'}
+                    {journeyPayload.trainName || selectedTrain?.name || 'Visakhapatnam - Secunderabad Vande Bharat Express'}
                   </div>
                 </div>
               </div>
@@ -661,9 +722,9 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
                 color: 'var(--text-primary)',
                 marginBottom: '0.85rem'
               }}>
-                <span>{selectedTrain?.originName || 'Ernakulam (ERS)'}</span>
+                <span>{journeyPayload.trainSource || selectedTrain?.originName || 'Visakhapatnam (VSKP)'}</span>
                 <span style={{ color: 'var(--accent-cyan)', letterSpacing: '0.1em' }}>────────&rarr;</span>
-                <span>{selectedTrain?.destinationName || 'Hazrat Nizamuddin (NZM)'}</span>
+                <span>{journeyPayload.trainDestination || selectedTrain?.destinationName || 'Secunderabad (SC)'}</span>
               </div>
 
               {/* 4 Metadata Columns Grid */}
@@ -676,19 +737,19 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
               }}>
                 <div style={{ background: 'var(--bg-panel-tertiary)', padding: '0.5rem 0.25rem', borderRadius: '8px' }}>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>Train Type</div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{selectedTrain?.type || 'Duronto Express'}</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.725rem' }}>{journeyPayload.trainType?.replace(/_/g, ' ') || selectedTrain?.type || 'VANDE BHARAT'}</div>
                 </div>
                 <div style={{ background: 'var(--bg-panel-tertiary)', padding: '0.5rem 0.25rem', borderRadius: '8px' }}>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>Total Distance</div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>2,922 km</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{journeyPayload.totalDistanceKm.toLocaleString()} km</div>
                 </div>
                 <div style={{ background: 'var(--bg-panel-tertiary)', padding: '0.5rem 0.25rem', borderRadius: '8px' }}>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>Total Stops</div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>18</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{journeyPayload.routeStations.length}</div>
                 </div>
                 <div style={{ background: 'var(--bg-panel-tertiary)', padding: '0.5rem 0.25rem', borderRadius: '8px' }}>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>Journey Duration</div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>~ 47h 15m</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{journeyDuration}</div>
                 </div>
               </div>
             </div>

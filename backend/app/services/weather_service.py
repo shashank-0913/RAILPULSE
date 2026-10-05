@@ -151,4 +151,37 @@ class WeatherService:
         }
         return fallback_weather
 
+    async def get_weather_for_station(self, station_code: str, station_name: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Fetch real Open-Meteo weather for an Indian Railways station by station code.
+        """
+        station_coords = {
+            "VSKP": (17.7215, 83.2870, "Visakhapatnam Junction"),
+            "DVD": (17.6983, 83.1595, "Duvvada"),
+            "SCM": (17.7686, 83.2185, "Simhachalam"),
+            "VZM": (18.1067, 83.3956, "Vizianagaram Junction"),
+            "CHE": (18.2949, 83.8938, "Srikakulam Road"),
+            "BAM": (19.3150, 84.7941, "Brahmapur"),
+            "BBS": (20.2666, 85.8436, "Bhubaneswar"),
+            "CTC": (20.4631, 85.8828, "Cuttack Junction"),
+            "KGP": (22.3361, 87.3242, "Kharagpur Junction"),
+            "HWH": (22.5830, 88.3426, "Howrah Junction"),
+            "AKP": (17.6913, 83.0039, "Anakapalle"),
+            "SLO": (16.9891, 82.2384, "Samalkot Junction"),
+            "RJY": (17.0005, 81.7774, "Rajahmundry"),
+            "TDD": (16.8126, 81.5284, "Tadepalligudem"),
+            "EE": (16.7107, 81.0952, "Eluru"),
+            "BZA": (16.5193, 80.6305, "Vijayawada Junction"),
+            "GNT": (16.2997, 80.4439, "Guntur Junction"),
+            "KZJ": (17.9784, 79.5244, "Kazipet Junction"),
+            "SC": (17.4334, 78.5017, "Secunderabad Junction"),
+            "HYB": (17.3916, 78.4687, "Hyderabad Deccan"),
+            "MAS": (13.0827, 80.2707, "MGR Chennai Central"),
+            "SBC": (12.9784, 77.5694, "KSR Bengaluru"),
+            "NDLS": (28.6143, 77.2187, "New Delhi")
+        }
+        st_info = station_coords.get(station_code.upper(), (17.7215, 83.2870, station_name or station_code))
+        lat, lon, def_name = st_info
+        return await self.get_weather_for_coordinates(lat, lon, station_name=station_name or def_name)
+
 weather_service = WeatherService()

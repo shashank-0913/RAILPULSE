@@ -668,3 +668,51 @@ input:focus, select:focus, textarea:focus {
     display: flex;
   }
 }
+
+/* Mobile & Small Screen Optimizations (<= 640px and <= 375px) */
+@media (max-width: 640px) {
+  .page-wrapper {
+    padding: 0.85rem 0.75rem !important;
+  }
+
+  .stat-grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .panel-grid-2col,
+  .panel-grid-3col,
+  .panel-grid-4col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .telemetry-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 375px) {
+  .page-wrapper {
+    padding: 0.65rem 0.4rem !important;
+  }
+
+  .stat-grid-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 0.4rem !important;
+  }
+
+  h1, .page-title {
+    font-size: 1.15rem !important;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 0.4rem 0.65rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .card-responsive {
+    padding: 0.75rem 0.5rem !important;
+  }
+}
