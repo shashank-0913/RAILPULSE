@@ -206,8 +206,8 @@ export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({ onNavigateTa
                 fontFamily: 'JetBrains Mono'
               }}
             >
-              {trains.map(t => (
-                <option key={t.id} value={t.id}>
+              {trains.map((t, idx) => (
+                <option key={`${t.id}-${idx}`} value={t.id}>
                   Train #{t.id} - {t.name}
                 </option>
               ))}
@@ -321,14 +321,14 @@ export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({ onNavigateTa
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-            {scenariosList.map((sc: any) => {
+            {scenariosList.map((sc: any, idx: number) => {
               const isPref = sc.isPreferred || sc.is_ai_preferred || sc.id === 'Scenario C' || sc.scenarioId === 'Scenario C';
               const netDelay = sc.totalNetworkDelayMin ?? sc.total_network_delay_minutes ?? 18;
               const delaySaved = sc.delaySavedMin ?? sc.delay_saved_minutes ?? 0;
 
               return (
                 <div
-                  key={sc.id || sc.scenarioId}
+                  key={sc.id || sc.scenarioId || `scenario-${idx}`}
                   style={{
                     background: isPref ? 'rgba(16, 185, 129, 0.08)' : '#10192e',
                     border: isPref ? '2px solid #10b981' : '1px solid #1e2e4f',

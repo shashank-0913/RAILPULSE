@@ -39,7 +39,7 @@ import {
 } from 'chart.js';
 import { Train, Section, SystemAlert } from '../types';
 import { api } from '../services/api';
-import { getUniversalJourneyPayload } from '../services/indianRailwaysData';
+import { getUniversalJourneyPayload, IR_STATION_DATABASE } from '../services/indianRailwaysData';
 
 ChartJS.register(
   CategoryScale,
@@ -143,22 +143,32 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
   // Route Waypoints for Map based on selected train
   const routeWaypoints = useMemo(() => {
-    const stations = journeyPayload.routeStations || [];
+    const stations = journeyPayload?.routeStations || [];
     const len = stations.length;
     const midIdx = Math.floor(len / 2);
-    return stations.map((st: any, idx: number) => {
-      let status: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'DESTINATION' = 'UPCOMING';
-      if (idx === 0) status = 'COMPLETED';
-      else if (idx === midIdx) status = 'CURRENT';
-      else if (idx === len - 1) status = 'DESTINATION';
-      return {
-        name: st.name,
-        code: st.code,
-        lat: st.lat,
-        lng: st.lng,
-        status
-      };
-    });
+    return stations
+      .map((st: any, idx: number) => {
+        let status: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'DESTINATION' = 'UPCOMING';
+        if (idx === 0) status = 'COMPLETED';
+        else if (idx === midIdx) status = 'CURRENT';
+        else if (idx === len - 1) status = 'DESTINATION';
+
+        // Check if lat/lng are directly present or fallback to station database
+        const dbStation = (IR_STATION_DATABASE as any)[st.code];
+        const lat = Number(st.lat !== undefined ? st.lat : dbStation?.lat);
+        const lng = Number(st.lng !== undefined ? st.lng : dbStation?.lng);
+
+        if (isNaN(lat) || isNaN(lng)) return null;
+
+        return {
+          name: st.name || dbStation?.name || st.code,
+          code: st.code,
+          lat,
+          lng,
+          status
+        };
+      })
+      .filter((w): w is NonNullable<typeof w> => w !== null);
   }, [journeyPayload]);
 
   // Initialize & Update Leaflet Map
@@ -166,8 +176,11 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
+      const centerLat = Number(journeyPayload?.latitude) || 17.7215;
+      const centerLng = Number(journeyPayload?.longitude) || 83.2986;
+
       const map = L.map(mapContainerRef.current, {
-        center: [journeyPayload.latitude || 17.7215, journeyPayload.longitude || 83.2986],
+        center: [centerLat, centerLng],
         zoom: 6,
         zoomControl: false,
         attributionControl: false
@@ -219,7 +232,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
       // Fit map bounds to show route
       try {
-        mapInstanceRef.current.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+        const bounds = polyline.getBounds();
+        if (bounds.isValid()) {
+          mapInstanceRef.current.fitBounds(bounds, { padding: [30, 30] });
+        }
       } catch (e) {
         mapInstanceRef.current.setView([journeyPayload.latitude || 17.7215, journeyPayload.longitude || 83.2986], 6);
       }
@@ -280,6 +296,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
         });
       });
     }
+
+    return () => {
+      // Map cleanup on unmount
+    };
   }, [mapLayer, routeWaypoints, journeyPayload]);
 
   // Delay Insights Line Chart Configuration

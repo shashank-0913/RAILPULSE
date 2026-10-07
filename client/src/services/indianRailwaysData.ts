@@ -780,6 +780,8 @@ export function getUniversalJourneyPayload(trainId: string) {
     routeStations: trainMeta.stations.map(s => ({
       code: s.code,
       name: s.name,
+      lat: s.lat,
+      lng: s.lng,
       scheduledArrival: s.scheduledArrival,
       scheduledDeparture: s.scheduledDeparture,
       platform: s.platform || '1',
